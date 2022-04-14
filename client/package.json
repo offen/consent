@@ -1,0 +1,11 @@
+{
+  "name": "@offen/consent",
+  "version": "1.0.0",
+  "description": "Client for the offen/consent Consent management tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "author": "Offen Authors <hioffen@posteo.de>",
+  "license": "Apache-2.0"
+}
