@@ -6,17 +6,19 @@ jobs:
       - image: cimg/node:16.14
     working_directory: ~/consent/client
     steps:
-      - checkout
+      - checkout:
+          path: ~/consent
       - run:
           name: Run tests
           command: npm t
 
   test_server:
     docker:
-      - image: cimg/golang:1.18
+      - image: cimg/go:1.18
     working_directory: ~/consent/server
     steps:
-      - checkout
+      - checkout:
+          path: ~/consent
       - run:
           name: Run tests
           command: go test -v ./...
