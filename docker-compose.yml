@@ -1,0 +1,39 @@
+#  Copyright 2020-2021 - Offen Authors <hioffen@posteo.de>
+#  SPDX-License-Identifier: Apache-2.0
+
+version: '3'
+
+services:
+  proxy:
+    image: nginx:1.17-alpine
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 9090:80
+    depends_on:
+      - server
+      - client
+
+  server:
+    image: golang:1.18-alpine
+    working_dir: /code/server
+    volumes:
+      - .:/code
+      - serverdeps:/go/pkg
+      - servercache:/data
+    command: go run cmd/consent/main.go
+
+  client:
+    image: node:16-alpine
+    command: npm start
+    restart: on-failure
+    working_dir: /code/client
+    volumes:
+      - .:/code
+      - clientdeps:/code/client/node_modules
+
+volumes:
+  serverdata:
+  serverdeps:
+  servercache:
+  clientdeps:

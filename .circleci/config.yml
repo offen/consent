@@ -9,6 +9,9 @@ jobs:
       - checkout:
           path: ~/consent
       - run:
+          name: Install dependencies
+          command: npm ci
+      - run:
           name: Run tests
           command: npm t
 
