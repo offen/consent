@@ -1,0 +1,29 @@
+version: 2.1
+
+jobs:
+  test_client:
+    docker:
+      - image: cimg/node:16.14
+    working_directory: ~/consent/client
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: npm t
+
+  test_server:
+    docker:
+      - image: cimg/golang:1.18
+    working_directory: ~/consent/server
+    steps:
+      - checkout
+      - run:
+          name: Run tests
+          command: go test -v ./...
+
+workflows:
+  version: 2
+  continuous_integration:
+    jobs:
+      - test_client
+      - test_server
