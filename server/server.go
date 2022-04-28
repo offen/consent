@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 )
 
 // NewHandler returns a http.Handler that serves the consent server using
@@ -19,25 +20,14 @@ func NewHandler(options ...Option) (http.Handler, error) {
 	return s, nil
 }
 
-func newDefaultServer() *server {
-	return &server{
-		logger:            log.New(io.Discard, "", log.Ldate),
-		userCookieName:    "user",
-		consentCookieName: "consent",
-		userIDFunc: func() (string, error) {
-			identifier := make([]byte, 16)
-			if _, err := rand.Read(identifier); err != nil {
-				return "", fmt.Errorf("userIDFunc: error reading random bytes. %w", err)
-			}
-			return hex.EncodeToString(identifier), nil
-		},
-	}
-}
-
 type server struct {
 	logger            *log.Logger
 	userCookieName    string
 	consentCookieName string
+	cookieDomain      string
+	cookiePath        string
+	cookieTTL         time.Duration
+	cookieSecure      bool
 	userIDFunc        func() (string, error)
 }
 
@@ -51,11 +41,34 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.SetCookie(w, &http.Cookie{
-			Name:  s.userCookieName,
-			Value: id,
+			Name:     s.userCookieName,
+			Value:    id,
+			Path:     s.cookiePath,
+			Domain:   s.cookieDomain,
+			Expires:  time.Now().Add(s.cookieTTL),
+			HttpOnly: true,
+			Secure:   s.cookieSecure,
+			SameSite: http.SameSiteLaxMode,
 		})
 		w.Write([]byte("OK"))
 	default:
 		http.Error(w, fmt.Sprintf("Method %s not allowed", r.Method), http.StatusMethodNotAllowed)
+	}
+}
+
+func newDefaultServer() *server {
+	return &server{
+		logger:            log.New(io.Discard, "", log.Ldate),
+		userCookieName:    "user",
+		consentCookieName: "consent",
+		cookieSecure:      true,
+		cookieTTL:         time.Hour * 24 * 31 * 6,
+		userIDFunc: func() (string, error) {
+			identifier := make([]byte, 16)
+			if _, err := rand.Read(identifier); err != nil {
+				return "", fmt.Errorf("userIDFunc: error reading random bytes. %w", err)
+			}
+			return hex.EncodeToString(identifier), nil
+		},
 	}
 }
