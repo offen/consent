@@ -15,23 +15,26 @@ import (
 )
 
 func main() {
-	port := flag.String("port", "8000", "The port to bind to")
-	handler, err := consent.NewHandler()
+	port := flag.Int("port", 8000, "The port to bind to")
+
+	logger := log.New(os.Stderr, "", log.Ldate)
+
+	handler, err := consent.NewHandler(consent.WithLogger(logger))
 	if err != nil {
 		panic(fmt.Errorf("cmd: error creating handler: %w", err))
 	}
 
 	srv := &http.Server{
 		Handler: handler,
-		Addr:    fmt.Sprintf(":%s", *port),
+		Addr:    fmt.Sprintf(":%d", *port),
 	}
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			panic(fmt.Errorf("cmd: error starting server: %w", err))
+			logger.Fatalf("cmd: error starting server: %s", err.Error())
 		}
 	}()
 
-	log.Printf("Server now listening on port %s", *port)
+	logger.Printf("Server now listening on port %d", *port)
 
 	quit := make(chan os.Signal)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
@@ -40,6 +43,6 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		panic(fmt.Errorf("cmd: error shutting down server: %w", err))
+		logger.Fatalf("cmd:  error shutting down server: %s", err.Error())
 	}
 }

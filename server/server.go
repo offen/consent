@@ -1,21 +1,32 @@
 package consent
 
-import "net/http"
+import (
+	"io"
+	"log"
+	"net/http"
+)
 
+// NewHandler returns a http.Handler that serves the consent server using
+// the given options.
 func NewHandler(options ...Option) (http.Handler, error) {
-	c := &config{}
+	s := newDefaultServer()
 	for _, option := range options {
-		option(c)
+		option(s)
 	}
+	return s, nil
+}
+
+func newDefaultServer() *server {
 	return &server{
-		config: c,
-	}, nil
+		logger: log.New(io.Discard, "", log.Ldate),
+	}
 }
 
 type server struct {
-	config *config
+	logger *log.Logger
 }
 
+// ServeHTTP handles a HTTP request
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
