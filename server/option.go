@@ -16,14 +16,6 @@ func WithLogger(l *log.Logger) Option {
 	}
 }
 
-// WithUserCookieName sets the name of the cookie that is used for storing
-// user's consent decisions
-func WithUserCookieName(n string) Option {
-	return func(s *server) {
-		s.userCookieName = n
-	}
-}
-
 // WithConsentCookieName sets the name of the cookie that is used for storing
 // user's consent decisions
 func WithConsentCookieName(n string) Option {
@@ -57,12 +49,5 @@ func WithCookieTTL(d time.Duration) Option {
 func WithCookieSecure(a bool) Option {
 	return func(s *server) {
 		s.cookieSecure = a
-	}
-}
-
-// WithUserIDFunc sets the function used for generating unique user identifiers
-func WithUserIDFunc(f func() (string, error)) Option {
-	return func(s *server) {
-		s.userIDFunc = f
 	}
 }
