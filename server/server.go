@@ -46,11 +46,10 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w,
 			s.makeCookie(s.userCookieName, id, time.Now().Add(s.cookieTTL)),
 		)
-		res := &response{
-			Ok: true,
-		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"decisions": map[string]string{},
+		})
 	case http.MethodGet:
 		c, err := r.Cookie(s.consentCookieName)
 		if err != nil {
@@ -94,11 +93,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w,
 			s.makeCookie(s.consentCookieName, "", time.Now().Add(-time.Hour)),
 		)
-		res := &response{
-			Ok: true,
-		}
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(res)
+		w.WriteHeader(http.StatusNoContent)
 	default:
 		http.Error(w, fmt.Sprintf("Method %s not allowed", r.Method), http.StatusMethodNotAllowed)
 	}
