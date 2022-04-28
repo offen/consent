@@ -3,6 +3,7 @@ package consent
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -50,7 +51,11 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Secure:   s.cookieSecure,
 			SameSite: http.SameSiteLaxMode,
 		})
-		w.Write([]byte("OK"))
+		res := &response{
+			Ok: true,
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(res)
 	default:
 		http.Error(w, fmt.Sprintf("Method %s not allowed", r.Method), http.StatusMethodNotAllowed)
 	}
