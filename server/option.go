@@ -16,11 +16,11 @@ func WithLogger(l *log.Logger) Option {
 	}
 }
 
-// WithConsentCookieName sets the name of the cookie that is used for storing
+// WithCookieName sets the name of the cookie that is used for storing
 // user's consent decisions
-func WithConsentCookieName(n string) Option {
+func WithCookieName(n string) Option {
 	return func(s *server) {
-		s.consentCookieName = n
+		s.cookieName = n
 	}
 }
 

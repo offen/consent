@@ -1,8 +1,6 @@
 package consent
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,39 +21,42 @@ func NewHandler(options ...Option) (http.Handler, error) {
 }
 
 type server struct {
-	logger            *log.Logger
-	userCookieName    string
-	consentCookieName string
-	cookieDomain      string
-	cookiePath        string
-	cookieTTL         time.Duration
-	cookieSecure      bool
-	userIDFunc        func() (string, error)
+	logger       *log.Logger
+	cookieName   string
+	cookieDomain string
+	cookiePath   string
+	cookieTTL    time.Duration
+	cookieSecure bool
 }
 
 // ServeHTTP handles a HTTP request
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodPost:
-		id, err := s.userIDFunc()
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+		body := map[string]string{}
+		json.NewDecoder(r.Body).Decode(&body)
+		var serialized string
+		for key, value := range body {
+			if len(serialized) != 0 {
+				serialized += "&"
+			}
+			serialized += fmt.Sprintf("%s=%s", key, value)
 		}
 		http.SetCookie(
 			w,
-			s.makeCookie(s.userCookieName, id, time.Now().Add(s.cookieTTL)),
+			s.makeCookie(s.cookieName, url.QueryEscape(serialized), time.Now().Add(s.cookieTTL)),
 		)
+
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(map[string]interface{}{
-			"decisions": map[string]string{},
+			"decisions": body,
 		})
 	case http.MethodGet:
-		c, err := r.Cookie(s.consentCookieName)
+		c, err := r.Cookie(s.cookieName)
 		if err != nil {
 			http.Error(
 				w,
-				fmt.Sprintf("unable to find a cookie named '%s'", s.consentCookieName),
+				fmt.Sprintf("unable to find a cookie named '%s'", s.cookieName),
 				http.StatusBadRequest,
 			)
 			return
@@ -65,7 +66,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(
 				w,
-				fmt.Sprintf("unable to decode value of cookie named '%s'", s.consentCookieName),
+				fmt.Sprintf("unable to decode value of cookie named '%s'", s.cookieName),
 				http.StatusBadRequest,
 			)
 			return
@@ -75,7 +76,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			http.Error(
 				w,
-				fmt.Sprintf("unable to deserialize value of cookie named '%s'", s.consentCookieName),
+				fmt.Sprintf("unable to deserialize value of cookie named '%s'", s.cookieName),
 				http.StatusBadRequest,
 			)
 			return
@@ -91,7 +92,7 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case http.MethodDelete:
 		http.SetCookie(
 			w,
-			s.makeCookie(s.consentCookieName, "", time.Now().Add(-time.Hour)),
+			s.makeCookie(s.cookieName, "", time.Now().Add(-time.Hour)),
 		)
 		w.WriteHeader(http.StatusNoContent)
 	default:
@@ -121,17 +122,9 @@ const (
 
 func newDefaultServer() *server {
 	return &server{
-		logger:            log.New(io.Discard, "", log.Ldate),
-		userCookieName:    defaultUserCookieName,
-		consentCookieName: defaultConsentCookieName,
-		cookieSecure:      defaultCookieSecure,
-		cookieTTL:         defaultCookieTTL,
-		userIDFunc: func() (string, error) {
-			identifier := make([]byte, 16)
-			if _, err := rand.Read(identifier); err != nil {
-				return "", fmt.Errorf("userIDFunc: error reading random bytes. %w", err)
-			}
-			return hex.EncodeToString(identifier), nil
-		},
+		logger:       log.New(io.Discard, "", log.Ldate),
+		cookieName:   defaultConsentCookieName,
+		cookieSecure: defaultCookieSecure,
+		cookieTTL:    defaultCookieTTL,
 	}
 }
