@@ -29,66 +29,81 @@ type server struct {
 	cookieSecure bool
 }
 
+type payload struct {
+	Decisions decisions `json:"decisions"`
+}
+
 // ServeHTTP handles a HTTP request
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodPost:
-		body := map[string]string{}
-		json.NewDecoder(r.Body).Decode(&body)
-		var serialized string
-		for key, value := range body {
-			if len(serialized) != 0 {
-				serialized += "&"
-			}
-			serialized += fmt.Sprintf("%s=%s", key, value)
-		}
-		http.SetCookie(
-			w,
-			s.makeCookie(s.cookieName, url.QueryEscape(serialized), time.Now().Add(s.cookieTTL)),
-		)
+	d := decisions{}
 
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"decisions": body,
-		})
-	case http.MethodGet:
-		c, err := r.Cookie(s.cookieName)
-		if err != nil {
-			http.Error(
-				w,
-				fmt.Sprintf("unable to find a cookie named '%s'", s.cookieName),
-				http.StatusBadRequest,
-			)
-			return
-		}
-
+	if c, _ := r.Cookie(s.cookieName); c != nil {
 		raw, err := url.QueryUnescape(c.Value)
 		if err != nil {
 			http.Error(
 				w,
-				fmt.Sprintf("unable to decode value of cookie named '%s'", s.cookieName),
+				fmt.Sprintf("error unescaping cookie value: %s", err.Error()),
 				http.StatusBadRequest,
 			)
 			return
 		}
-
-		values, err := url.ParseQuery(raw)
+		decisionsFromCookie, err := parseDecisions(raw)
 		if err != nil {
 			http.Error(
 				w,
-				fmt.Sprintf("unable to deserialize value of cookie named '%s'", s.cookieName),
+				fmt.Sprintf("error parsing unescaped cookie value: %s", err.Error()),
 				http.StatusBadRequest,
 			)
 			return
 		}
+		d.update(decisionsFromCookie)
+	}
 
-		var normalizedValues = make(map[string]string)
-		for key, value := range values {
-			normalizedValues[key] = value[0]
+	switch r.Method {
+	case http.MethodPost:
+		body := payload{}
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(
+				w,
+				fmt.Sprintf("error decoding body: %s", err.Error()),
+				http.StatusBadRequest,
+			)
+			return
 		}
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"decisions": normalizedValues,
-		})
+		d.update(&body.Decisions)
+
+		encodedBody, err := d.encode()
+		if err != nil {
+			http.Error(
+				w,
+				fmt.Sprintf("error encoding decisions as cookie: %s", err.Error()),
+				http.StatusInternalServerError,
+			)
+			return
+		}
+
+		http.SetCookie(
+			w,
+			s.makeCookie(s.cookieName, url.QueryEscape(encodedBody), time.Now().Add(s.cookieTTL)),
+		)
+
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(&payload{Decisions: d}); err != nil {
+			http.Error(
+				w,
+				fmt.Sprintf("error encoding response payload: %s", err.Error()),
+				http.StatusInternalServerError,
+			)
+		}
+	case http.MethodGet:
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(payload{Decisions: d}); err != nil {
+			http.Error(
+				w,
+				fmt.Sprintf("error encoding response payload: %s", err.Error()),
+				http.StatusInternalServerError,
+			)
+		}
 	case http.MethodDelete:
 		http.SetCookie(
 			w,
@@ -114,7 +129,6 @@ func (s *server) makeCookie(name, value string, expires time.Time) *http.Cookie 
 }
 
 const (
-	defaultUserCookieName    = "user"
 	defaultConsentCookieName = "consent"
 	defaultCookieTTL         = time.Hour * 24 * 31 * 6
 	defaultCookieSecure      = true
