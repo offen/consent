@@ -10,8 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-
-	esbuild "github.com/evanw/esbuild/pkg/api"
 )
 
 // NewHandler returns a http.Handler that serves the consent server using
@@ -179,19 +177,12 @@ func newDefaultServer() (*server, error) {
 		return nil, fmt.Errorf("newDefaultServer: error parsing template: %w", err)
 	}
 
-	result := esbuild.Transform(proxyScript, esbuild.TransformOptions{
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Target:            esbuild.ES5,
-		Format:            esbuild.FormatIIFE,
-	})
-
-	if len(result.Errors) != 0 {
-		return nil, fmt.Errorf("newDefaultServer: error minifying script: %s", result.Errors[0].Text)
+	script, err := minifyJS(proxyScript)
+	if err != nil {
+		return nil, fmt.Errorf("newDefaultServer: error minifying: %w", err)
 	}
+	safeScript := template.JS(script)
 
-	script := template.JS(string(result.Code))
 	return &server{
 		logger:       log.New(io.Discard, "", log.Ldate),
 		cookieName:   defaultConsentCookieName,
@@ -199,7 +190,7 @@ func newDefaultServer() (*server, error) {
 		cookieTTL:    defaultCookieTTL,
 		tpl:          tpl,
 		templateData: &templateData{
-			Script: &script,
+			Script: &safeScript,
 		},
 	}, nil
 }
