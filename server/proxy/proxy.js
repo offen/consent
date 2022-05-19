@@ -1,3 +1,8 @@
+/**
+ * Copyright 2022 - Offen Authors <hioffen@posteo.de>
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
 var api = new Api()
 
 window.addEventListener('message', function handleMessage (evt) {
