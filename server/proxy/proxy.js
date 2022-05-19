@@ -1,1 +1,2 @@
-console.log('Hello world')
+var greet = () => console.log('Hello world')
+greet()

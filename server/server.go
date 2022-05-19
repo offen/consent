@@ -9,10 +9,28 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	esbuild "github.com/evanw/esbuild/pkg/api"
 )
 
 //go:embed proxy/proxy.js
-var proxyScript []byte
+var proxyScript string
+
+var minifiedProxyScript []byte
+
+func init() {
+	result := esbuild.Transform(proxyScript, esbuild.TransformOptions{
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Target:            esbuild.ES5,
+		Format:            esbuild.FormatIIFE,
+	})
+	if len(result.Errors) != 0 {
+		panic(result.Errors[0].Text)
+	}
+	minifiedProxyScript = []byte(result.Code)
+}
 
 // NewHandler returns a http.Handler that serves the consent server using
 // the given options.
@@ -39,7 +57,7 @@ type payload struct {
 
 func (s *server) handleProxyScript(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/javascript")
-	w.Write(proxyScript)
+	w.Write(minifiedProxyScript)
 }
 
 func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
