@@ -12,11 +12,33 @@ window.addEventListener('message', function handleMessage (evt) {
     }
     switch (evt.data.type) {
     case 'QUERY':
-      return api.get(evt.data.payload).then(wrapResponse('SUCCESS'))
+      return api
+        .get()
+        .then((result) => {
+          if (!evt.data.payload.scopes.length) {
+            return result
+          }
+          var decisions = evt.data.payload.scopes.reduce((acc, scope) => {
+            acc[scope] = null
+            if (scope in result.decisions) {
+              acc[scope] = result.decisions[scope]
+            }
+            return acc
+          }, {})
+          return { decisions: decisions }
+        })
+        .then(wrapResponse('SUCCESS'))
     case 'ACQUIRE':
-      return api.post(evt.data.payload).then(wrapResponse('SUCCESS'))
+      return requestDecisions(evt.data.payload.scopes)
+        .then((decisions) => {
+          return api
+            .post({ decisions: decisions })
+        })
+        .then(wrapResponse('SUCCESS'))
     case 'REVOKE':
-      return api.delete(evt.data.payload).then(wrapResponse('SUCCESS'))
+      return api
+        .delete()
+        .then(wrapResponse('SUCCESS'))
     default:
       return Promise.reject(new Error(`Unsupported message type "${evt.data.type}"`))
     }
@@ -27,52 +49,58 @@ window.addEventListener('message', function handleMessage (evt) {
         evt.ports[0].postMessage(response)
       }
     })
+
+  function wrapResponse (type) {
+    return function (payload) {
+      return {
+        type: type,
+        payload: payload
+      }
+    }
+  }
 })
 
 function Api () {
-  this.get = ()  => {
+  this.get = handleResponse(()  => {
     return window.fetch(window.location.origin + '/consent', {
       method: 'GET',
       credentials: 'include'
     })
-      .then(handleResponse)
-  }
+  })
 
-  this.post = (body)  => {
+  this.post = handleResponse((body)  => {
     return window.fetch(window.location.origin + '/consent', {
       method: 'POST',
       credentials: 'include',
       body: body ? JSON.stringify(body) : undefined
     })
-      .then(handleResponse)
+l })
 
-l }
-
-  this.delete = (body)  => {
+  this.delete = handleResponse((body)  => {
     return window.fetch(window.location.origin + '/consent', {
       method: 'DELETE',
       credentials: 'include',
       body: body ? JSON.stringify(body) : undefined
     })
-      .then(handleResponse)
-  }
+  })
 
-  function handleResponse (res) {
-    if (res.status === 204) {
-      return Promise.resolve(null)
+  function handleResponse (fn) {
+    return function () {
+      return fn.apply(null, [].slice.call(arguments))
+        .then((res) => {
+          if (res.status === 204) {
+            return Promise.resolve(null)
+          }
+          return res.json()
+        })
     }
-    return res.json()
   }
 }
 
-function wrapResponse (type, payload) {
-  if (!payload) {
-    return function (payload) {
-      return wrapResponse(type, payload)
-    }
-  }
-  return {
-    type: type,
-    payload: payload
-  }
+function requestDecisions (scopes) {
+  var decisions = scopes.reduce((acc, next) => {
+    acc[next] = true
+    return acc
+  }, {})
+  return Promise.resolve(decisions)
 }
