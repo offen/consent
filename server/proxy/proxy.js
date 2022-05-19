@@ -31,24 +31,37 @@ window.addEventListener('message', function handleMessage (evt) {
 
 function Api () {
   this.get = ()  => {
-    return window.fetch(window.location.origin, {
+    return window.fetch(window.location.origin + '/consent', {
       method: 'GET',
       credentials: 'include'
     })
+      .then(handleResponse)
   }
+
   this.post = (body)  => {
-    return window.fetch(window.location.origin, {
+    return window.fetch(window.location.origin + '/consent', {
       method: 'POST',
       credentials: 'include',
       body: body ? JSON.stringify(body) : undefined
     })
+      .then(handleResponse)
+
 l }
+
   this.delete = (body)  => {
-    return window.fetch(window.location.origin, {
+    return window.fetch(window.location.origin + '/consent', {
       method: 'DELETE',
       credentials: 'include',
       body: body ? JSON.stringify(body) : undefined
     })
+      .then(handleResponse)
+  }
+
+  function handleResponse (res) {
+    if (res.status === 204) {
+      return Promise.resolve(null)
+    }
+    return res.json()
   }
 }
 

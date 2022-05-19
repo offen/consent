@@ -23,8 +23,10 @@ func (d *decisions) encode() (string, error) {
 
 func parseDecisions(s string) (*decisions, error) {
 	d := decisions{}
-	if err := json.Unmarshal([]byte(s), &d); err != nil {
-		return nil, fmt.Errorf("parseDecisions: error unmarshaling: %w", err)
+	if s != "" {
+		if err := json.Unmarshal([]byte(s), &d); err != nil {
+			return nil, fmt.Errorf("parseDecisions: error unmarshaling: %w", err)
+		}
 	}
 	return &d, nil
 }

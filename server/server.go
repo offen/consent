@@ -60,6 +60,14 @@ func (s *server) handleProxyScript(w http.ResponseWriter, r *http.Request) {
 	w.Write(minifiedProxyScript)
 }
 
+//go:embed proxy/index.html
+var proxyHost []byte
+
+func (s *server) handleProxyHost(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "text/html")
+	w.Write(proxyHost)
+}
+
 func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 	d := decisions{}
 
@@ -144,9 +152,11 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 // ServeHTTP handles a HTTP request
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "/proxy.js":
+	case "/proxy/proxy.js":
 		s.handleProxyScript(w, r)
-	case "/":
+	case "/proxy":
+		s.handleProxyHost(w, r)
+	case "/consent":
 		s.handleConsentRequest(w, r)
 	default:
 		http.NotFound(w, r)
