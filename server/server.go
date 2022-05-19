@@ -86,6 +86,15 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.Method {
+	case http.MethodGet:
+		w.Header().Set("Content-Type", "application/json")
+		if err := json.NewEncoder(w).Encode(payload{Decisions: d}); err != nil {
+			http.Error(
+				w,
+				fmt.Sprintf("error encoding response payload: %s", err.Error()),
+				http.StatusInternalServerError,
+			)
+		}
 	case http.MethodPost:
 		body := payload{}
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
@@ -115,15 +124,6 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		if err := json.NewEncoder(w).Encode(&payload{Decisions: d}); err != nil {
-			http.Error(
-				w,
-				fmt.Sprintf("error encoding response payload: %s", err.Error()),
-				http.StatusInternalServerError,
-			)
-		}
-	case http.MethodGet:
-		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(payload{Decisions: d}); err != nil {
 			http.Error(
 				w,
 				fmt.Sprintf("error encoding response payload: %s", err.Error()),
