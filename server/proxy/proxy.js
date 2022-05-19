@@ -29,7 +29,13 @@ window.addEventListener('message', function handleMessage (evt) {
         })
         .then(wrapResponse('SUCCESS'))
     case 'ACQUIRE':
-      return requestDecisions(evt.data.payload.scopes)
+      return api.get()
+        .then((pendingDecisions) => {
+          const decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
+            return !(scope in pendingDecisions)
+          })
+          return requestDecisions(decisionsToBeTaken)
+        })
         .then((decisions) => {
           return api
             .post({ decisions: decisions })
