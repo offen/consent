@@ -4,6 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"io"
 	"log"
 	"net/http"
@@ -13,29 +14,14 @@ import (
 	esbuild "github.com/evanw/esbuild/pkg/api"
 )
 
-//go:embed proxy/proxy.js
-var proxyScript string
-
-var minifiedProxyScript []byte
-
-func init() {
-	result := esbuild.Transform(proxyScript, esbuild.TransformOptions{
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
-		Target:            esbuild.ES5,
-		Format:            esbuild.FormatIIFE,
-	})
-	if len(result.Errors) != 0 {
-		panic(result.Errors[0].Text)
-	}
-	minifiedProxyScript = []byte(result.Code)
-}
-
 // NewHandler returns a http.Handler that serves the consent server using
 // the given options.
 func NewHandler(options ...Option) (http.Handler, error) {
-	s := newDefaultServer()
+	s, err := newDefaultServer()
+	if err != nil {
+		return nil, err
+	}
+
 	for _, option := range options {
 		option(s)
 	}
@@ -43,29 +29,30 @@ func NewHandler(options ...Option) (http.Handler, error) {
 }
 
 type server struct {
-	logger       *log.Logger
-	cookieName   string
-	cookieDomain string
-	cookiePath   string
-	cookieTTL    time.Duration
-	cookieSecure bool
+	logger              *log.Logger
+	cookieName          string
+	cookieDomain        string
+	cookiePath          string
+	cookieTTL           time.Duration
+	cookieSecure        bool
+	tpl                 *template.Template
+	templateData        *templateData
+	minifiedProxyScript string
 }
 
 type payload struct {
 	Decisions decisions `json:"decisions"`
 }
 
-func (s *server) handleProxyScript(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Content-Type", "application/javascript")
-	w.Write(minifiedProxyScript)
-}
-
-//go:embed proxy/index.html
-var proxyHost []byte
-
 func (s *server) handleProxyHost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "text/html")
-	w.Write(proxyHost)
+	if err := s.tpl.Execute(w, s.templateData); err != nil {
+		http.Error(
+			w,
+			fmt.Sprintf("error rendering template: %s", err.Error()),
+			http.StatusInternalServerError,
+		)
+	}
 }
 
 func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
@@ -152,8 +139,6 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 // ServeHTTP handles a HTTP request
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
-	case "/proxy/proxy.js":
-		s.handleProxyScript(w, r)
 	case "/proxy":
 		s.handleProxyHost(w, r)
 	case "/consent":
@@ -182,11 +167,44 @@ const (
 	defaultCookieSecure      = true
 )
 
-func newDefaultServer() *server {
+//go:embed proxy/index.go.html
+var proxyHostTemplate string
+
+//go:embed proxy/proxy.js
+var proxyScript string
+
+func newDefaultServer() (*server, error) {
+	tpl := template.New("proxy")
+	if _, err := tpl.Parse(string(proxyHostTemplate)); err != nil {
+		return nil, fmt.Errorf("newDefaultServer: error parsing template: %w", err)
+	}
+
+	result := esbuild.Transform(proxyScript, esbuild.TransformOptions{
+		MinifyWhitespace:  true,
+		MinifyIdentifiers: true,
+		MinifySyntax:      true,
+		Target:            esbuild.ES5,
+		Format:            esbuild.FormatIIFE,
+	})
+
+	if len(result.Errors) != 0 {
+		return nil, fmt.Errorf("newDefaultServer: error minifying script: %s", result.Errors[0].Text)
+	}
+
+	script := template.JS(string(result.Code))
 	return &server{
 		logger:       log.New(io.Discard, "", log.Ldate),
 		cookieName:   defaultConsentCookieName,
 		cookieSecure: defaultCookieSecure,
 		cookieTTL:    defaultCookieTTL,
-	}
+		tpl:          tpl,
+		templateData: &templateData{
+			Script: &script,
+		},
+	}, nil
+}
+
+type templateData struct {
+	Script *template.JS
+	Styles *template.CSS
 }

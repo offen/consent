@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Consent Proxy</title>
+    {{ with .Styles }}
+      <style type="text/css">
+        {{ . }}
+      </style>
+    {{ end }}
+  </head>
+  <body>
+    <script>{{ .Script }}</script>
+  </body>
+</html>
