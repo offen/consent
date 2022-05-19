@@ -1,6 +1,7 @@
 package consent
 
 import (
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +10,9 @@ import (
 	"net/url"
 	"time"
 )
+
+//go:embed proxy/proxy.js
+var proxyScript []byte
 
 // NewHandler returns a http.Handler that serves the consent server using
 // the given options.
@@ -33,8 +37,12 @@ type payload struct {
 	Decisions decisions `json:"decisions"`
 }
 
-// ServeHTTP handles a HTTP request
-func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (s *server) handleProxyScript(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/javascript")
+	w.Write(proxyScript)
+}
+
+func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 	d := decisions{}
 
 	if c, _ := r.Cookie(s.cookieName); c != nil {
@@ -112,6 +120,18 @@ func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	default:
 		http.Error(w, fmt.Sprintf("Method %s not allowed", r.Method), http.StatusMethodNotAllowed)
+	}
+}
+
+// ServeHTTP handles a HTTP request
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/proxy.js":
+		s.handleProxyScript(w, r)
+	case "/":
+		s.handleConsentRequest(w, r)
+	default:
+		http.NotFound(w, r)
 	}
 }
 
