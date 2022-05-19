@@ -1,20 +1,6 @@
 version: 2.1
 
 jobs:
-  test_client:
-    docker:
-      - image: cimg/node:16.14
-    working_directory: ~/consent/client
-    steps:
-      - checkout:
-          path: ~/consent
-      - run:
-          name: Install dependencies
-          command: npm ci
-      - run:
-          name: Run tests
-          command: npm t
-
   test_server:
     docker:
       - image: cimg/go:1.18
@@ -30,5 +16,4 @@ workflows:
   version: 2
   continuous_integration:
     jobs:
-      - test_client
       - test_server

@@ -1,0 +1,4 @@
+http://localhost:9001 {
+  root * /var/www/html
+  file_server
+}

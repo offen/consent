@@ -27,15 +27,15 @@ func NewHandler(options ...Option) (http.Handler, error) {
 }
 
 type server struct {
-	logger              *log.Logger
-	cookieName          string
-	cookieDomain        string
-	cookiePath          string
-	cookieTTL           time.Duration
-	cookieSecure        bool
-	tpl                 *template.Template
-	templateData        *templateData
-	minifiedProxyScript string
+	logger       *log.Logger
+	cookieName   string
+	cookieDomain string
+	cookiePath   string
+	cookieTTL    time.Duration
+	cookieSecure bool
+	tpl          *template.Template
+	templateData *templateData
+	clientScript []byte
 }
 
 type payload struct {
@@ -51,6 +51,11 @@ func (s *server) handleProxyHost(w http.ResponseWriter, r *http.Request) {
 			http.StatusInternalServerError,
 		)
 	}
+}
+
+func (s *server) handleClientScript(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Content-Type", "application/javascript")
+	w.Write(s.clientScript)
 }
 
 func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
@@ -137,6 +142,8 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 // ServeHTTP handles a HTTP request
 func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	switch r.URL.Path {
+	case "/client.js":
+		s.handleClientScript(w, r)
 	case "/proxy":
 		s.handleProxyHost(w, r)
 	case "/consent":
@@ -171,23 +178,32 @@ var proxyHostTemplate string
 //go:embed proxy/proxy.js
 var proxyScript string
 
+//go:embed client/client.js
+var clientScript string
+
 func newDefaultServer() (*server, error) {
 	tpl := template.New("proxy")
 	if _, err := tpl.Parse(string(proxyHostTemplate)); err != nil {
 		return nil, fmt.Errorf("newDefaultServer: error parsing template: %w", err)
 	}
 
-	script, err := minifyJS(proxyScript)
+	minifiedProxyScript, err := minifyJS(proxyScript)
 	if err != nil {
-		return nil, fmt.Errorf("newDefaultServer: error minifying: %w", err)
+		return nil, fmt.Errorf("newDefaultServer: error minifying proxy script: %w", err)
 	}
-	safeScript := template.JS(script)
+	safeScript := template.JS(minifiedProxyScript)
+
+	minifiedClientScript, err := minifyJS(clientScript)
+	if err != nil {
+		return nil, fmt.Errorf("newDefaultServer: error minifying client script: %w", err)
+	}
 
 	return &server{
 		logger:       log.New(io.Discard, "", log.Ldate),
 		cookieName:   defaultConsentCookieName,
 		cookieSecure: defaultCookieSecure,
 		cookieTTL:    defaultCookieTTL,
+		clientScript: []byte(minifiedClientScript),
 		tpl:          tpl,
 		templateData: &templateData{
 			Script: &safeScript,

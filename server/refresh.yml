@@ -1,0 +1,16 @@
+# Copyright 2020 - Offen Authors <hioffen@posteo.de>
+# SPDX-License-Identifier: Apache-2.0
+
+app_root: .
+included_extensions:
+  - .go
+  - .js
+  - .go.html
+build_path: /data/build
+build_delay: 200ms
+build_target_path : ./cmd/consent
+command_flags:
+  - '-port'
+  - '9000'
+binary_name: refresh-build
+enable_colors: true

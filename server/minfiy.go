@@ -11,7 +11,7 @@ func minifyJS(js string) (string, error) {
 		MinifyWhitespace:  true,
 		MinifyIdentifiers: true,
 		MinifySyntax:      true,
-		Target:            esbuild.ES5,
+		Target:            esbuild.ES2015,
 		Format:            esbuild.FormatIIFE,
 	})
 

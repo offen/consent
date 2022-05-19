@@ -16,6 +16,7 @@ import (
 
 func main() {
 	port := flag.Int("port", 8000, "The port to bind to")
+	flag.Parse()
 
 	logger := log.New(os.Stderr, "", log.Ldate)
 

@@ -94,4 +94,4 @@ class EmbeddedProxy {
   }
 }
 
-module.exports = Client
+window.Client = Client
