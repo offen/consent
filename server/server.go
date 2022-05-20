@@ -1,3 +1,4 @@
+//go:generate go run cmd/bundle/main.go
 package consent
 
 import (
@@ -9,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 )
 
@@ -175,10 +177,10 @@ const (
 //go:embed proxy/index.go.html
 var proxyHostTemplate string
 
-//go:embed proxy/proxy.js
+//go:embed proxy/bundle.min.js
 var proxyScript string
 
-//go:embed client/client.js
+//go:embed client/bundle.min.js
 var clientScript string
 
 func newDefaultServer() (*server, error) {
@@ -187,15 +189,17 @@ func newDefaultServer() (*server, error) {
 		return nil, fmt.Errorf("newDefaultServer: error parsing template: %w", err)
 	}
 
-	minifiedProxyScript, err := minifyJS(proxyScript)
-	if err != nil {
-		return nil, fmt.Errorf("newDefaultServer: error minifying proxy script: %w", err)
-	}
-	safeScript := template.JS(minifiedProxyScript)
+	if _, development := os.LookupEnv("DEVELOPMENT"); development {
+		var err error
+		proxyScript, err = bundleJS("proxy/proxy.js")
+		if err != nil {
+			return nil, fmt.Errorf("newDefaultServer: error bundling proxy script: %w", err)
+		}
 
-	minifiedClientScript, err := minifyJS(clientScript)
-	if err != nil {
-		return nil, fmt.Errorf("newDefaultServer: error minifying client script: %w", err)
+		clientScript, err = bundleJS("client/client.js")
+		if err != nil {
+			return nil, fmt.Errorf("newDefaultServer: error bundling client script: %w", err)
+		}
 	}
 
 	return &server{
@@ -203,15 +207,15 @@ func newDefaultServer() (*server, error) {
 		cookieName:   defaultConsentCookieName,
 		cookieSecure: defaultCookieSecure,
 		cookieTTL:    defaultCookieTTL,
-		clientScript: []byte(minifiedClientScript),
+		clientScript: []byte(clientScript),
 		tpl:          tpl,
 		templateData: &templateData{
-			Script: &safeScript,
+			Script: template.JS(proxyScript),
 		},
 	}, nil
 }
 
 type templateData struct {
-	Script *template.JS
+	Script template.JS
 	Styles *template.CSS
 }

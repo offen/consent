@@ -17,6 +17,8 @@ services:
       context: '.'
       dockerfile: ./dev/Dockerfile
     working_dir: /code/server
+    environment:
+      DEVELOPMENT: 'true'
     ports:
       - 9000:9000
     volumes:
