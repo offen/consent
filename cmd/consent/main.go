@@ -22,7 +22,7 @@ func main() {
 
 	handler, err := consent.NewHandler(consent.WithLogger(logger))
 	if err != nil {
-		panic(fmt.Errorf("cmd: error creating handler: %w", err))
+		logger.Fatalf("cmd: error creating handler: %s", err.Error())
 	}
 
 	srv := &http.Server{

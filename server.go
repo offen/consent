@@ -188,7 +188,6 @@ func newDefaultServer() (*server, error) {
 	if _, err := tpl.Parse(string(proxyHostTemplate)); err != nil {
 		return nil, fmt.Errorf("newDefaultServer: error parsing template: %w", err)
 	}
-
 	minifiedProxyScript, err := minifyJS(proxyScript)
 	if err != nil {
 		return nil, fmt.Errorf("newDefaultServer: error minifying proxy script: %w", err)
