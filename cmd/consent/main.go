@@ -33,6 +33,8 @@ func main() {
 		buttonYes = fs.String("ui-button-yes", "", "The yes button used for the default consent banner (also via UI_BUTTON_YES)")
 		buttonNo  = fs.String("ui-button-no", "", "The No button used for the default consent banner (also via UI_BUTTON_NO)")
 
+		templatesDirectory = fs.String("templates-directory", "", "The location to look for custom templates (also via TEMPLATES_DIRECTORY)")
+
 		_ = fs.String("config", os.Getenv("CONFIG_FILE"), "The location of the config file in yaml format (optional)")
 	)
 
@@ -44,6 +46,7 @@ func main() {
 	handler, err := consent.NewHandler(
 		consent.WithLogger(logger),
 		consent.WithCustomizedWording(*copy, *buttonYes, *buttonNo),
+		consent.WithTemplatesDirectory(*templatesDirectory),
 	)
 	if err != nil {
 		logger.Fatalf("cmd: error creating handler: %s", err.Error())

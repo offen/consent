@@ -16,6 +16,7 @@ services:
     working_dir: /code
     environment:
       DEVELOPMENT: 'true'
+      TEMPLATES_DIRECTORY: './dev/templates'
     ports:
       - 9000:9000
     volumes:

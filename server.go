@@ -52,8 +52,11 @@ func NewHandler(options ...Option) (http.Handler, error) {
 	}
 
 	for _, option := range options {
-		option(s)
+		if err := option(s); err != nil {
+			return nil, err
+		}
 	}
+
 	return s, nil
 }
 
@@ -69,6 +72,7 @@ func (s *server) handleProxyHost(w http.ResponseWriter, r *http.Request) {
 			fmt.Sprintf("error rendering template: %s", err.Error()),
 			http.StatusInternalServerError,
 		)
+		return
 	}
 }
 
@@ -216,9 +220,10 @@ func newDefaultServer() (*server, error) {
 }
 
 type templateData struct {
-	Script  *template.JS
-	Styles  *template.CSS
-	Wording wording
+	Script          *template.JS
+	Styles          *template.CSS
+	Wording         wording
+	CustomTemplates *map[string]template.HTML
 }
 
 type wording struct {
