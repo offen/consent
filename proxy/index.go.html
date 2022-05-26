@@ -1,4 +1,4 @@
-{{/* Copyright 2020 - Offen Authors <hioffen@posteo.de> */}}
+{{/* Copyright 2022 - Offen Authors <hioffen@posteo.de> */}}
 {{/* SPDX-License-Identifier: Apache-2.0 */}}
 
 <!doctype html>
@@ -24,6 +24,13 @@
         </div>
       </div>
     </div>
+    {{ with .CustomTemplates }}
+      {{ range $key, $content := . }}
+        <div id="{{ $key }}" >
+          {{ $content }}
+        </div>
+      {{ end }}
+    {{ end }}
     <script>{{ .Script }}</script>
   </body>
 </html>
