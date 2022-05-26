@@ -54,3 +54,12 @@ func WithCookieSecure(a bool) Option {
 		s.cookieSecure = a
 	}
 }
+
+// WithCustomizedWording passes custom copy to be used in the default consent UI
+func WithCustomizedWording(copy, yes, no string) Option {
+	return func(s *server) {
+		s.templateData.Wording.Paragraph = copy
+		s.templateData.Wording.Yes = yes
+		s.templateData.Wording.No = no
+	}
+}

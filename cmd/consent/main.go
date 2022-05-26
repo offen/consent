@@ -28,7 +28,12 @@ func main() {
 		port   = fs.Int("port", 8000, "The port to bind to (also via PORT)")
 		domain = fs.String("domain", "", "The domain used to serve the application via SSL (also via DOMAIN)")
 		certs  = fs.String("certs", "/var/www/.cache", "The directory to use for caching SSL certificates (also via CERTS)")
-		_      = fs.String("config", os.Getenv("CONFIG_FILE"), "The location of the config file in yaml format (optional)")
+
+		copy      = fs.String("ui-copy", "", "The copy used for the default consent banner (also via UI_COPY)")
+		buttonYes = fs.String("ui-button-yes", "", "The yes button used for the default consent banner (also via UI_BUTTON_YES)")
+		buttonNo  = fs.String("ui-button-no", "", "The No button used for the default consent banner (also via UI_BUTTON_NO)")
+
+		_ = fs.String("config", os.Getenv("CONFIG_FILE"), "The location of the config file in yaml format (optional)")
 	)
 
 	if err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix(), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ffyaml.Parser)); err != nil {
@@ -36,7 +41,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	handler, err := consent.NewHandler(consent.WithLogger(logger))
+	handler, err := consent.NewHandler(
+		consent.WithLogger(logger),
+		consent.WithCustomizedWording(*copy, *buttonYes, *buttonNo),
+	)
 	if err != nil {
 		logger.Fatalf("cmd: error creating handler: %s", err.Error())
 	}

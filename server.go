@@ -23,7 +23,7 @@ type server struct {
 	cookieTTL    time.Duration
 	cookieSecure bool
 	tpl          *template.Template
-	templateData *templateData
+	templateData templateData
 	clientScript []byte
 }
 
@@ -209,13 +209,20 @@ func newDefaultServer() (*server, error) {
 		cookieTTL:    defaultCookieTTL,
 		clientScript: []byte(minifiedClientScript),
 		tpl:          tpl,
-		templateData: &templateData{
+		templateData: templateData{
 			Script: &safeScript,
 		},
 	}, nil
 }
 
 type templateData struct {
-	Script *template.JS
-	Styles *template.CSS
+	Script  *template.JS
+	Styles  *template.CSS
+	Wording wording
+}
+
+type wording struct {
+	Paragraph string
+	Yes       string
+	No        string
 }
