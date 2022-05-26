@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-var api = new Api()
+const api = new Api()
 
 window.addEventListener('message', function handleMessage (evt) {
   (() => {
@@ -11,42 +11,42 @@ window.addEventListener('message', function handleMessage (evt) {
       return Promise.reject(new Error('Received no or malformed message, cannot continue.'))
     }
     switch (evt.data.type) {
-    case 'QUERY':
-      return api
-        .get()
-        .then((result) => {
-          if (!evt.data.payload.scopes.length) {
-            return result
-          }
-          var decisions = evt.data.payload.scopes.reduce((acc, scope) => {
-            acc[scope] = null
-            if (scope in result.decisions) {
-              acc[scope] = result.decisions[scope]
+      case 'QUERY':
+        return api
+          .get()
+          .then((result) => {
+            if (!evt.data.payload.scopes.length) {
+              return result
             }
-            return acc
-          }, {})
-          return { decisions: decisions }
-        })
-        .then(wrapResponse('SUCCESS'))
-    case 'ACQUIRE':
-      return api.get()
-        .then((pendingDecisions) => {
-          var decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
-            return !(scope in pendingDecisions)
+            const decisions = evt.data.payload.scopes.reduce((acc, scope) => {
+              acc[scope] = null
+              if (scope in result.decisions) {
+                acc[scope] = result.decisions[scope]
+              }
+              return acc
+            }, {})
+            return { decisions }
           })
-          return requestDecisions(decisionsToBeTaken)
-        })
-        .then((decisions) => {
-          return api
-            .post({ decisions: decisions })
-        })
-        .then(wrapResponse('SUCCESS'))
-    case 'REVOKE':
-      return api
-        .delete()
-        .then(wrapResponse('SUCCESS'))
-    default:
-      return Promise.reject(new Error(`Unsupported message type "${evt.data.type}"`))
+          .then(wrapResponse('SUCCESS'))
+      case 'ACQUIRE':
+        return api.get()
+          .then((pendingDecisions) => {
+            const decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
+              return !(scope in pendingDecisions)
+            })
+            return requestDecisions(decisionsToBeTaken)
+          })
+          .then((decisions) => {
+            return api
+              .post({ decisions })
+          })
+          .then(wrapResponse('SUCCESS'))
+      case 'REVOKE':
+        return api
+          .delete()
+          .then(wrapResponse('SUCCESS'))
+      default:
+        return Promise.reject(new Error(`Unsupported message type "${evt.data.type}"`))
     }
   })()
     .catch(wrapResponse('ERROR'))
@@ -59,30 +59,30 @@ window.addEventListener('message', function handleMessage (evt) {
   function wrapResponse (type) {
     return function (payload) {
       return {
-        type: type,
-        payload: payload
+        type,
+        payload
       }
     }
   }
 })
 
 function Api () {
-  this.get = handleResponse(()  => {
+  this.get = handleResponse(() => {
     return window.fetch(window.location.origin + '/consent', {
       method: 'GET',
       credentials: 'include'
     })
   })
 
-  this.post = handleResponse((body)  => {
+  this.post = handleResponse((body) => {
     return window.fetch(window.location.origin + '/consent', {
       method: 'POST',
       credentials: 'include',
       body: body ? JSON.stringify(body) : undefined
     })
-l })
+  })
 
-  this.delete = handleResponse((body)  => {
+  this.delete = handleResponse((body) => {
     return window.fetch(window.location.origin + '/consent', {
       method: 'DELETE',
       credentials: 'include',
@@ -104,7 +104,7 @@ l })
 }
 
 function requestDecisions (scopes) {
-  var decisions = scopes.reduce((acc, next) => {
+  const decisions = scopes.reduce((acc, next) => {
     acc[next] = true
     return acc
   }, {})

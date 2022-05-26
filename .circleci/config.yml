@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  test_server:
+  test_go:
     docker:
       - image: cimg/go:1.18
     working_directory: ~/consent
@@ -12,8 +12,23 @@ jobs:
           name: Run tests
           command: go test -v ./...
 
+  test_js:
+    docker:
+      - image: cimg/node:14.19
+    working_directory: ~/consent
+    steps:
+      - checkout:
+          path: ~/consent
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - run:
+          name: Run tests
+          command: npm t
+
 workflows:
   version: 2
   continuous_integration:
     jobs:
-      - test_server
+      - test_go
+      - test_js

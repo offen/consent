@@ -28,7 +28,7 @@ class EmbeddedProxy {
   }
 
   injectIframe (url) {
-    var proxy = document.createElement('iframe')
+    const proxy = document.createElement('iframe')
     proxy.src = url + '/proxy'
 
     proxy.style.display = 'none'
@@ -36,26 +36,27 @@ class EmbeddedProxy {
     proxy.setAttribute('scrolling', 'no')
     proxy.setAttribute('title', 'Consent Proxy')
 
-    var elementId = 'consent-proxy-' + Math.random().toString(36).slice(2)
+    const elementId = 'consent-proxy-' + Math.random().toString(36).slice(2)
     proxy.setAttribute('id', elementId)
 
-    var iframe = new Promise(function (resolve, reject) {
+    const iframe = new Promise(function (resolve, reject) {
       proxy.addEventListener('load', function (e) {
         function postMessage (message) {
           return new Promise(function (resolve, reject) {
-            var origin = new window.URL(proxy.src).origin
+            const origin = new window.URL(proxy.src).origin
             message.host = message.host || '#' + elementId
 
-            var messageChannel = new window.MessageChannel()
+            const messageChannel = new window.MessageChannel()
             messageChannel.port1.onmessage = function (event) {
-              var responseMessage = event.data || {}
+              const responseMessage = event.data || {}
               switch (responseMessage.type) {
-                case 'ERROR':
-                  var err = new Error(responseMessage.payload.error)
+                case 'ERROR': {
+                  const err = new Error(responseMessage.payload.error)
                   err.originalStack = responseMessage.payload.stack
                   err.status = responseMessage.payload.status
                   reject(err)
                   break
+                }
                 default:
                   resolve(responseMessage.payload)
               }
