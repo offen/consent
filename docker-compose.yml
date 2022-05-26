@@ -16,7 +16,7 @@ services:
     build:
       context: '.'
       dockerfile: ./dev/Dockerfile
-    working_dir: /code/server
+    working_dir: /code
     ports:
       - 9000:9000
     volumes:

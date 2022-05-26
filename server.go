@@ -12,6 +12,34 @@ import (
 	"time"
 )
 
+type server struct {
+	logger       *log.Logger
+	cookieName   string
+	cookieDomain string
+	cookiePath   string
+	cookieTTL    time.Duration
+	cookieSecure bool
+	tpl          *template.Template
+	templateData *templateData
+	clientScript []byte
+}
+
+// ServeHTTP handles a HTTP request
+func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	switch r.URL.Path {
+	case "/healthz":
+		w.Write([]byte("OK"))
+	case "/client.js":
+		s.handleClientScript(w, r)
+	case "/proxy":
+		s.handleProxyHost(w, r)
+	case "/consent":
+		s.handleConsentRequest(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
 // NewHandler returns a http.Handler that serves the consent server using
 // the given options.
 func NewHandler(options ...Option) (http.Handler, error) {
@@ -24,18 +52,6 @@ func NewHandler(options ...Option) (http.Handler, error) {
 		option(s)
 	}
 	return s, nil
-}
-
-type server struct {
-	logger       *log.Logger
-	cookieName   string
-	cookieDomain string
-	cookiePath   string
-	cookieTTL    time.Duration
-	cookieSecure bool
-	tpl          *template.Template
-	templateData *templateData
-	clientScript []byte
 }
 
 type payload struct {
@@ -136,20 +152,6 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 	default:
 		http.Error(w, fmt.Sprintf("Method %s not allowed", r.Method), http.StatusMethodNotAllowed)
-	}
-}
-
-// ServeHTTP handles a HTTP request
-func (s *server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	switch r.URL.Path {
-	case "/client.js":
-		s.handleClientScript(w, r)
-	case "/proxy":
-		s.handleProxyHost(w, r)
-	case "/consent":
-		s.handleConsentRequest(w, r)
-	default:
-		http.NotFound(w, r)
 	}
 }
 

@@ -4,7 +4,7 @@ jobs:
   test_server:
     docker:
       - image: cimg/go:1.18
-    working_directory: ~/consent/server
+    working_directory: ~/consent
     steps:
       - checkout:
           path: ~/consent

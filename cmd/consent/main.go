@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	consent "github.com/offen/consent/server"
+	consent "github.com/offen/consent"
 )
 
 func main() {

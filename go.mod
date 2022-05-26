@@ -1,4 +1,4 @@
-module github.com/offen/consent/server
+module github.com/offen/consent
 
 go 1.18
 
