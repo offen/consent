@@ -10,10 +10,18 @@
         {{ . }}
       </style>
     {{ end }}
+    <style>
+      .scope {
+        display: none;
+      }
+      .scope.show {
+        display: initial;
+      }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   </head>
   <body style="text-align: center; margin: 0; padding: 0; font-family: sans-serif;">
-    <div id="default" style="max-width: 30em; background-color: #f5f5f5; padding: 1em; margin: 0 auto;">
+    <div class="scope" id="default" style="max-width: 30em; background-color: #f5f5f5; padding: 1em; margin: 0 auto;">
       <p style="font-size: 1em; margin-block-start: 0; margin-block-end: 1em;">Use this text to explain what consent is requested for.</p>
       <div style="display: flex; flex-wrap: wrap; justify-content: center;">
         <div style="margin: 0 0.2em 0.4em;">
@@ -26,7 +34,7 @@
     </div>
     {{ with .CustomTemplates }}
       {{ range $key, $content := . }}
-        <div id="{{ $key }}" >
+        <div id="{{ $key }}" class="scope">
           {{ $content }}
         </div>
       {{ end }}

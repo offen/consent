@@ -51,7 +51,7 @@ class EmbeddedProxy {
               const responseMessage = event.data || {}
               switch (responseMessage.type) {
                 case 'ERROR': {
-                  const err = new Error(responseMessage.payload.error)
+                  const err = new Error(responseMessage.payload.message)
                   err.originalStack = responseMessage.payload.stack
                   err.status = responseMessage.payload.status
                   reject(err)

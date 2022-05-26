@@ -104,9 +104,47 @@ function Api () {
 }
 
 function requestDecisions (scopes) {
-  const decisions = scopes.reduce((acc, next) => {
-    acc[next] = true
-    return acc
-  }, {})
-  return Promise.resolve(decisions)
+  return scopes.reduce((result, scope) => {
+    return result.then(decisions => {
+      const element = document.getElementById(scope) || document.getElementById('default')
+      const yes = element.querySelector('[data-yes]')
+      const no = element.querySelector('[data-no]')
+      return new Promise((resolve, reject) => {
+        showElement(element)
+        if (!yes || !no) {
+          reject(new Error('Could not bind event listeners.'))
+          return
+        }
+        yes.addEventListener('click', handleYes)
+        no.addEventListener('click', handleNo)
+
+        function handleYes () {
+          unbind()
+          resolve(true)
+        }
+        function handleNo () {
+          unbind()
+          resolve(false)
+        }
+        function unbind () {
+          no.removeEventListener('click', handleNo)
+          yes.removeEventListener('click', handleYes)
+        }
+      })
+        .then((decision) => {
+          // TODO: remove listeners
+          hideElement(element)
+          decisions[scope] = decision
+          return decisions
+        })
+    })
+  }, Promise.resolve({}))
+}
+
+function showElement (el) {
+  el.classList.add('show')
+}
+
+function hideElement (el) {
+  el.classList.remove('show')
 }
