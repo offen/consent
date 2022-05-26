@@ -26,12 +26,13 @@ COPY --from=builder ./code/consent /opt/consent/consent-linux-$TARGETARCH${TARGE
 RUN setcap CAP_NET_BIND_SERVICE=+eip /opt/consent/consent-linux-$TARGETARCH${TARGETVARIANT:+-$TARGETVARIANT}
 RUN ln -s /opt/consent/consent-linux-$TARGETARCH${TARGETVARIANT:+-$TARGETVARIANT} /sbin/consent
 
+ENV PORT 80
 EXPOSE 80 443
 
 HEALTHCHECK --interval=1m --timeout=5s \
   CMD wget -qO- http://localhost:80/healthz || exit 1
 
-ENTRYPOINT ["/sbin/tini", "--", "consent", "--port", "80"]
+ENTRYPOINT ["/sbin/tini", "--", "consent"]
 
 USER consent
 WORKDIR /home/consent

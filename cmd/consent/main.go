@@ -12,16 +12,26 @@ import (
 	"time"
 
 	consent "github.com/offen/consent"
+	"github.com/peterbourgon/ff/v3"
+	"github.com/peterbourgon/ff/v3/ffyaml"
 	"golang.org/x/crypto/acme/autocert"
 )
 
 func main() {
-	port := flag.Int("port", 8000, "The port to bind to")
-	domain := flag.String("domain", "", "The domain used to serve the application via SSL")
-	certs := flag.String("certs", "/var/www/.cache", "The directory to use for caching SSL certificates")
-	flag.Parse()
-
 	logger := log.New(os.Stderr, "", log.Ldate)
+
+	fs := flag.NewFlagSet("consent", flag.ContinueOnError)
+	var (
+		port   = fs.Int("port", 8000, "The port to bind to (also via PORT)")
+		domain = fs.String("domain", "", "The domain used to serve the application via SSL (also via DOMAIN)")
+		certs  = fs.String("certs", "/var/www/.cache", "The directory to use for caching SSL certificates (also via CERTS)")
+		_      = fs.String("config", os.Getenv("CONFIG_FILE"), "The location of the config file in yaml format (optional)")
+	)
+
+	if err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix(), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ffyaml.Parser)); err != nil {
+		logger.Fatalf("cmd: error parsing configuration: %s", err.Error())
+		os.Exit(1)
+	}
 
 	handler, err := consent.NewHandler(consent.WithLogger(logger))
 	if err != nil {
