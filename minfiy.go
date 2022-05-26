@@ -2,15 +2,17 @@ package consent
 
 import (
 	"fmt"
+	"os"
 
 	esbuild "github.com/evanw/esbuild/pkg/api"
 )
 
 func minifyJS(js string) (string, error) {
+	_, isDevelopment := os.LookupEnv("DEVELOPMENT")
 	result := esbuild.Transform(js, esbuild.TransformOptions{
-		MinifyWhitespace:  true,
-		MinifyIdentifiers: true,
-		MinifySyntax:      true,
+		MinifyWhitespace:  !isDevelopment,
+		MinifyIdentifiers: !isDevelopment,
+		MinifySyntax:      !isDevelopment,
 		Target:            esbuild.ES2015,
 		Format:            esbuild.FormatIIFE,
 	})
