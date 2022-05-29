@@ -51,9 +51,15 @@ class EmbeddedProxy {
               const responseMessage = evt.data || {}
               switch (responseMessage.type) {
                 case 'STYLES':
-                  proxy.style.display = evt.data.payload.visible
-                    ? 'block'
-                    : 'none'
+                  if ('visible' in evt.data.payload) {
+                    proxy.style.display = evt.data.payload.visible
+                      ? 'block'
+                      : 'none'
+                  }
+                  if ('rect' in evt.data.payload) {
+                    proxy.setAttribute('width', evt.data.payload.rect.width)
+                    proxy.setAttribute('height', evt.data.payload.rect.height)
+                  }
                   break
                 case 'ERROR': {
                   const err = new Error(responseMessage.payload.message)

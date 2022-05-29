@@ -114,6 +114,9 @@ function requestDecisions (scopes, relayStyles) {
       return new Promise((resolve, reject) => {
         showElement(element)
         relayStyles({ visible: true })
+        setTimeout(() => {
+          relayStyles({ rect: element.getBoundingClientRect() })
+        }, 0)
         if (!yes || !no) {
           reject(new Error('Could not bind event listeners.'))
           return
