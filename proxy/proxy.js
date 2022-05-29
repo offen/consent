@@ -34,7 +34,9 @@ window.addEventListener('message', function handleMessage (evt) {
             const decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
               return !(scope in pendingDecisions)
             })
-            return requestDecisions(decisionsToBeTaken)
+            return requestDecisions(decisionsToBeTaken, function (styles) {
+              evt.ports[0].postMessage(wrapResponse('STYLES')(styles))
+            })
           })
           .then((decisions) => {
             return api
@@ -103,7 +105,7 @@ function Api () {
   }
 }
 
-function requestDecisions (scopes) {
+function requestDecisions (scopes, relayStyles) {
   return scopes.reduce((result, scope) => {
     return result.then(decisions => {
       const element = document.getElementById(scope) || document.getElementById('default')
@@ -111,6 +113,7 @@ function requestDecisions (scopes) {
       const no = element.querySelector('[data-no]')
       return new Promise((resolve, reject) => {
         showElement(element)
+        relayStyles({ visible: true })
         if (!yes || !no) {
           reject(new Error('Could not bind event listeners.'))
           return
@@ -132,8 +135,8 @@ function requestDecisions (scopes) {
         }
       })
         .then((decision) => {
-          // TODO: remove listeners
           hideElement(element)
+          relayStyles({ visible: false })
           decisions[scope] = decision
           return decisions
         })

@@ -47,9 +47,14 @@ class EmbeddedProxy {
             message.host = message.host || '#' + elementId
 
             const messageChannel = new window.MessageChannel()
-            messageChannel.port1.onmessage = function (event) {
-              const responseMessage = event.data || {}
+            messageChannel.port1.onmessage = function (evt) {
+              const responseMessage = evt.data || {}
               switch (responseMessage.type) {
+                case 'STYLES':
+                  proxy.style.display = evt.data.payload.visible
+                    ? 'block'
+                    : 'none'
+                  break
                 case 'ERROR': {
                   const err = new Error(responseMessage.payload.message)
                   err.originalStack = responseMessage.payload.stack
