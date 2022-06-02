@@ -14,8 +14,8 @@ type scope string
 
 type decisions map[domain]map[scope]interface{}
 
-func (d *decisions) update(u *decisions) {
-	for domain, decisions := range *u {
+func (d *decisions) update(update *decisions) {
+	for domain, decisions := range *update {
 		for s, decision := range decisions {
 			if (*d)[domain] == nil {
 				(*d)[domain] = map[scope]interface{}{}

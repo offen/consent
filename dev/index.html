@@ -23,7 +23,7 @@
         ui: { styles: null }
       })
       client
-        .acquire('other', 'test')
+        .acquire('default', 'other', 'test')
         .then((r) => console.log(r))
         .catch((err) => console.error(err))
     </script>
