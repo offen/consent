@@ -17,6 +17,7 @@ services:
     environment:
       DEVELOPMENT: 'true'
       TEMPLATES_DIRECTORY: './dev/templates'
+      STYLESHEET: './dev/templates/styles.css'
     ports:
       - 9000:9000
     volumes:

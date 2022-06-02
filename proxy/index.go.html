@@ -27,6 +27,11 @@
         display: initial;
       }
     </style>
+    {{ with .Styles }}
+      <style type="text/css">
+        {{ . }}
+      </style>
+    {{ end }}
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   </head>
   <body>
