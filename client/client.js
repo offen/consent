@@ -5,7 +5,7 @@
 
 class Client {
   constructor (options = {}) {
-    this.proxy = new EmbeddedProxy(options.url)
+    this.proxy = new EmbeddedProxy(options.url, options.host, options.ui)
   }
 
   acquire (...scopes) {
@@ -22,12 +22,20 @@ class Client {
 }
 
 class EmbeddedProxy {
-  constructor (url) {
-    this._send = this.injectIframe(url)
+  constructor (url, host, ui) {
+    this._send = this.injectIframe(url, host, ui)
     this.targetOrigin = new window.URL(url).origin
   }
 
-  injectIframe (url) {
+  injectIframe (
+    url,
+    host = document.body,
+    options = {}
+  ) {
+    options = Object.assign({
+      className: 'consent',
+      styles: { margin: 'auto', position: 'fixed', bottom: '1em', left: '0', right: '0' }
+    }, options)
     const proxy = document.createElement('iframe')
     proxy.src = url + '/proxy'
 
@@ -38,6 +46,10 @@ class EmbeddedProxy {
 
     const elementId = 'consent-proxy-' + Math.random().toString(36).slice(2)
     proxy.setAttribute('id', elementId)
+    proxy.classList.add(options.className)
+    for (const prop in options.styles) {
+      proxy.style[prop] = options.styles[prop]
+    }
 
     const iframe = new Promise(function (resolve, reject) {
       proxy.addEventListener('load', function (e) {
@@ -47,11 +59,22 @@ class EmbeddedProxy {
             message.host = message.host || '#' + elementId
 
             const messageChannel = new window.MessageChannel()
-            messageChannel.port1.onmessage = function (event) {
-              const responseMessage = event.data || {}
+            messageChannel.port1.onmessage = function (evt) {
+              const responseMessage = evt.data || {}
               switch (responseMessage.type) {
+                case 'STYLES':
+                  if ('visible' in evt.data.payload) {
+                    proxy.style.display = evt.data.payload.visible
+                      ? 'block'
+                      : 'none'
+                  }
+                  if ('rect' in evt.data.payload) {
+                    proxy.setAttribute('width', evt.data.payload.rect.width)
+                    proxy.setAttribute('height', evt.data.payload.rect.height)
+                  }
+                  break
                 case 'ERROR': {
-                  const err = new Error(responseMessage.payload.error)
+                  const err = new Error(responseMessage.payload.message)
                   err.originalStack = responseMessage.payload.stack
                   err.status = responseMessage.payload.status
                   reject(err)
@@ -78,11 +101,11 @@ class EmbeddedProxy {
       case 'complete':
       case 'loaded':
       case 'interactive':
-        document.body.appendChild(proxy)
+        host.appendChild(proxy)
         break
       default:
         document.addEventListener('DOMContentLoaded', function () {
-          document.body.appendChild(proxy)
+          host.appendChild(proxy)
         })
     }
     return iframe
@@ -95,4 +118,4 @@ class EmbeddedProxy {
   }
 }
 
-window.Client = Client
+window.ConsentClient = Client

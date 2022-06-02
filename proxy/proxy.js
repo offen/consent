@@ -30,11 +30,13 @@ window.addEventListener('message', function handleMessage (evt) {
           .then(wrapResponse('SUCCESS'))
       case 'ACQUIRE':
         return api.get()
-          .then((pendingDecisions) => {
+          .then(({ decisions: existingDecisions }) => {
             const decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
-              return !(scope in pendingDecisions)
+              return !(scope in existingDecisions)
             })
-            return requestDecisions(decisionsToBeTaken)
+            return requestDecisions(decisionsToBeTaken, function (styles) {
+              evt.ports[0].postMessage(wrapResponse('STYLES')(styles))
+            })
           })
           .then((decisions) => {
             return api
@@ -103,10 +105,59 @@ function Api () {
   }
 }
 
-function requestDecisions (scopes) {
-  const decisions = scopes.reduce((acc, next) => {
-    acc[next] = true
-    return acc
-  }, {})
-  return Promise.resolve(decisions)
+function requestDecisions (scopes, relayStyles) {
+  return scopes.reduce((result, scope) => {
+    return result.then(decisions => {
+      const element = document.getElementById(scope) || document.getElementById('default')
+      const yes = element.querySelector('[data-yes]')
+      const no = element.querySelector('[data-no]')
+      return new Promise((resolve, reject) => {
+        showElement(element)
+        relayStyles({ visible: true })
+        setTimeout(() => relayStyles({ rect: element.getBoundingClientRect() }), 0)
+        if (!yes || !no) {
+          reject(new Error('Could not bind event listeners.'))
+          return
+        }
+        yes.addEventListener('click', handleYes)
+        no.addEventListener('click', handleNo)
+
+        function handleYes () {
+          unbind()
+          resolve(true)
+        }
+        function handleNo () {
+          unbind()
+          resolve(false)
+        }
+        function unbind () {
+          no.removeEventListener('click', handleNo)
+          yes.removeEventListener('click', handleYes)
+        }
+      })
+        .then((decision) => {
+          hideElement(element)
+          relayStyles({ visible: false })
+          decisions[scope] = decision
+          return decisions
+        })
+        .then(deferBy(0))
+    })
+  }, Promise.resolve({}))
+}
+
+function showElement (el) {
+  el.classList.add('show')
+}
+
+function hideElement (el) {
+  el.classList.remove('show')
+}
+
+function deferBy (ms) {
+  return function (result) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(result), ms)
+    })
+  }
 }

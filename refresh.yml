@@ -6,6 +6,7 @@ included_extensions:
   - .go
   - .js
   - .html
+  - .css
 build_path: /data/build
 build_delay: 200ms
 build_target_path : ./cmd/consent

@@ -1,6 +1,31 @@
 <html>
-  <head></head>
+  <head>
+    <style>
+      body {
+        background-color: lightblue;
+        max-width: 40em;
+        margin: auto;
+      }
+    </style>
+  </head>
   <body>
+    <h1>Test page</h1>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor consectetur eveniet tempora adipisci nesciunt similique cupiditate saepe sed. Vitae ea est perferendis itaque odit doloribus corporis doloremque architecto recusandae veritatis. Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem neque unde sunt ullam incidunt assumenda voluptatibus porro aut tenetur at quod dolores molestias alias harum cumque consequatur necessitatibus, explicabo quaerat. Lorem ipsum dolor, sit, amet consectetur adipisicing elit. Ipsam, delectus tempore. Quibusdam ipsum, nisi dicta consequuntur modi, nesciunt repudiandae facere distinctio exercitationem, harum tempore, optio cupiditate libero omnis quaerat cum. Lorem ipsum dolor sit amet consectetur adipisicing elit. Porro voluptas minima animi blanditiis laboriosam esse, nobis numquam ipsum? Recusandae sint sit nemo consectetur possimus dicta ab commodi adipisci velit deleniti.</p>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores amet ipsum asperiores harum. Asperiores ipsam nulla alias illo error officiis animi quam deleniti veniam, beatae adipisci aut, accusantium veritatis quasi. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum, fuga, repudiandae? Iure optio nesciunt aut exercitationem voluptates impedit atque voluptas incidunt. Nobis laboriosam nemo odio, fuga, sit enim eligendi aut. Lorem ipsum dolor, sit amet consectetur, adipisicing elit. Ex praesentium doloremque soluta, asperiores. Ducimus fuga ab, fugit veritatis molestiae sunt nesciunt, eum laboriosam magnam esse, optio cumque a neque ipsa. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corrupti blanditiis, dicta temporibus fugit obcaecati nostrum corporis porro, aliquam animi eveniet magni ipsum ea distinctio modi. Magni enim facilis, numquam cum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dicta harum libero quisquam placeat inventore unde obcaecati sit provident hic saepe qui veniam ab voluptatem fugiat, in, distinctio eaque laborum ducimus? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Iure repudiandae quos rem possimus totam? Recusandae pariatur consequuntur beatae corrupti sed harum, consectetur accusantium, magni molestias ipsum quae suscipit facere unde! Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur at voluptate suscipit sunt eaque, ratione dicta natus eum, nesciunt est. Repellendus molestias est fugiat necessitatibus blanditiis nam consequatur sit explicabo.</p>
+    <div id="host"></div>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores amet ipsum asperiores harum. Asperiores ipsam nulla alias illo error officiis animi quam deleniti veniam, beatae adipisci aut, accusantium veritatis quasi. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum, fuga, repudiandae? Iure optio nesciunt aut exercitationem voluptates impedit atque voluptas incidunt. Nobis laboriosam nemo odio, fuga, sit enim eligendi aut. Lorem ipsum dolor, sit amet consectetur, adipisicing elit. Ex praesentium doloremque soluta, asperiores. Ducimus fuga ab, fugit veritatis molestiae sunt nesciunt, eum laboriosam magnam esse, optio cumque a neque ipsa. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corrupti blanditiis, dicta temporibus fugit obcaecati nostrum corporis porro, aliquam animi eveniet magni ipsum ea distinctio modi. Magni enim facilis, numquam cum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dicta harum libero quisquam placeat inventore unde obcaecati sit provident hic saepe qui veniam ab voluptatem fugiat, in, distinctio eaque laborum ducimus? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Iure repudiandae quos rem possimus totam? Recusandae pariatur consequuntur beatae corrupti sed harum, consectetur accusantium, magni molestias ipsum quae suscipit facere unde! Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur at voluptate suscipit sunt eaque, ratione dicta natus eum, nesciunt est. Repellendus molestias est fugiat necessitatibus blanditiis nam consequatur sit explicabo.</p>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores amet ipsum asperiores harum. Asperiores ipsam nulla alias illo error officiis animi quam deleniti veniam, beatae adipisci aut, accusantium veritatis quasi. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum, fuga, repudiandae? Iure optio nesciunt aut exercitationem voluptates impedit atque voluptas incidunt. Nobis laboriosam nemo odio, fuga, sit enim eligendi aut. Lorem ipsum dolor, sit amet consectetur, adipisicing elit. Ex praesentium doloremque soluta, asperiores. Ducimus fuga ab, fugit veritatis molestiae sunt nesciunt, eum laboriosam magnam esse, optio cumque a neque ipsa. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corrupti blanditiis, dicta temporibus fugit obcaecati nostrum corporis porro, aliquam animi eveniet magni ipsum ea distinctio modi. Magni enim facilis, numquam cum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dicta harum libero quisquam placeat inventore unde obcaecati sit provident hic saepe qui veniam ab voluptatem fugiat, in, distinctio eaque laborum ducimus? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Iure repudiandae quos rem possimus totam? Recusandae pariatur consequuntur beatae corrupti sed harum, consectetur accusantium, magni molestias ipsum quae suscipit facere unde! Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur at voluptate suscipit sunt eaque, ratione dicta natus eum, nesciunt est. Repellendus molestias est fugiat necessitatibus blanditiis nam consequatur sit explicabo.</p>
     <script src="http://localhost:9000/client.js"></script>
+    <script>
+      const client = new window.ConsentClient({
+        url: 'http://localhost:9000',
+        host: document.getElementById('host'),
+        ui: { styles: null }
+      })
+      client
+        .acquire('other', 'test')
+        .then((r) => console.log(r))
+        .catch((err) => console.error(err))
+    </script>
   </body>
 </html>

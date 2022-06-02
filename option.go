@@ -4,6 +4,7 @@
 package consent
 
 import (
+	"fmt"
 	"html/template"
 	"io/fs"
 	"log"
@@ -76,6 +77,22 @@ func WithCustomizedWording(copy, yes, no string) Option {
 	}
 }
 
+// WithStylesheet adds a stylesheet that is injected into the iframe element.
+func WithStylesheet(loc string) Option {
+	return func(s *server) error {
+		if loc == "" {
+			return nil
+		}
+		b, err := os.ReadFile(loc)
+		if err != nil {
+			return fmt.Errorf("WithCustomStyles: error reading given file: %w", err)
+		}
+		css := template.CSS(string(b))
+		s.templateData.Styles = &css
+		return nil
+	}
+}
+
 // WithTemplatesDirectory configures the server to look for custom templates
 // in the given location.
 func WithTemplatesDirectory(dir string) Option {
@@ -94,14 +111,14 @@ func WithTemplatesDirectory(dir string) Option {
 			}
 			b, err := os.ReadFile(path)
 			if err != nil {
-				return err
+				return fmt.Errorf("WithTemplatesDirectory: error reading file %s: %w", path, err)
 			}
 			id := filepath.Base(path)
 			id = strings.TrimSuffix(id, ".html")
 			templates[id] = template.HTML(string(b))
 			return nil
 		}); err != nil {
-			return err
+			return fmt.Errorf("WithTemplatesDirectory: error walking directory %s: %w", dir, err)
 		}
 		s.templateData.CustomTemplates = &templates
 		return nil
