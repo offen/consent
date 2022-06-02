@@ -30,9 +30,9 @@ window.addEventListener('message', function handleMessage (evt) {
           .then(wrapResponse('SUCCESS'))
       case 'ACQUIRE':
         return api.get()
-          .then((pendingDecisions) => {
+          .then(({ decisions: existingDecisions }) => {
             const decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
-              return !(scope in pendingDecisions)
+              return !(scope in existingDecisions)
             })
             return requestDecisions(decisionsToBeTaken, function (styles) {
               evt.ports[0].postMessage(wrapResponse('STYLES')(styles))
@@ -114,9 +114,7 @@ function requestDecisions (scopes, relayStyles) {
       return new Promise((resolve, reject) => {
         showElement(element)
         relayStyles({ visible: true })
-        setTimeout(() => {
-          relayStyles({ rect: element.getBoundingClientRect() })
-        }, 0)
+        setTimeout(() => relayStyles({ rect: element.getBoundingClientRect() }), 0)
         if (!yes || !no) {
           reject(new Error('Could not bind event listeners.'))
           return
@@ -143,6 +141,7 @@ function requestDecisions (scopes, relayStyles) {
           decisions[scope] = decision
           return decisions
         })
+        .then(deferBy(0))
     })
   }, Promise.resolve({}))
 }
@@ -153,4 +152,12 @@ function showElement (el) {
 
 function hideElement (el) {
   el.classList.remove('show')
+}
+
+function deferBy (ms) {
+  return function (result) {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve(result), ms)
+    })
+  }
 }

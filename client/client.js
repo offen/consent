@@ -106,4 +106,4 @@ class EmbeddedProxy {
   }
 }
 
-window.Client = Client
+window.ConsentClient = Client

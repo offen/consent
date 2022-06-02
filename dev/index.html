@@ -1,6 +1,20 @@
 <html>
-  <head></head>
+  <head>
+    <style>
+      body {
+        background-color: lightblue;
+      }
+    </style>
+  </head>
   <body>
+    <h1>Test page</h1>
     <script src="http://localhost:9000/client.js"></script>
+    <script>
+      const client = new window.ConsentClient({ url: 'http://localhost:9000' })
+      client
+        .acquire('other', 'test')
+        .then((r) => console.log(r))
+        .catch((err) => console.error(err))
+    </script>
   </body>
 </html>
