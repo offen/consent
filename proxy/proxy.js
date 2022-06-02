@@ -108,7 +108,7 @@ function Api () {
 function requestDecisions (scopes, relayStyles) {
   return scopes.reduce((result, scope) => {
     return result.then(decisions => {
-      const element = document.getElementById(scope) || document.getElementById('default')
+      const element = document.querySelector(`[data-scope="${scope}"]`) || document.querySelector('[data-scope="default"]')
       const yes = element.querySelector('[data-yes]')
       const no = element.querySelector('[data-no]')
       return new Promise((resolve, reject) => {

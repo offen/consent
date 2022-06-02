@@ -14,7 +14,7 @@
         padding: 0;
         background-color: white;
       }
-      #default {
+      [data-scope="default"] {
         text-align: center;
         font-family: sans-serif;
       }
@@ -35,7 +35,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   </head>
   <body>
-    <div class="consent-scope" id="default" style="max-width: 30em; background-color: #f5f5f5; padding: 1em; margin: 0 auto;">
+    <div class="consent-scope" data-scope="default" style="max-width: 30em; background-color: #f5f5f5; padding: 1em; margin: 0 auto;">
       <p style="font-size: 1em; margin-block-start: 0; margin-block-end: 1em;">
         Use this text to explain what consent is requested for.
       </p>
@@ -54,7 +54,7 @@
     </div>
     {{ with .CustomTemplates }}
       {{ range $key, $content := . }}
-        <div id="{{ $key }}" class="consent-scope">
+        <div data-scope="{{ $key }}" class="consent-scope">
           {{ $content }}
         </div>
       {{ end }}
