@@ -61,7 +61,7 @@ func NewHandler(options ...Option) (http.Handler, error) {
 }
 
 type payload struct {
-	Decisions decisions `json:"decisions"`
+	Decisions map[scope]interface{} `json:"decisions"`
 }
 
 func (s *server) handleProxyHost(w http.ResponseWriter, r *http.Request) {
@@ -83,6 +83,16 @@ func (s *server) handleClientScript(w http.ResponseWriter, r *http.Request) {
 
 func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 	d := decisions{}
+	referrerURL, err := url.Parse(r.Referer())
+	if err != nil {
+		http.Error(
+			w,
+			fmt.Sprintf("error parsing Referer header: %s", err.Error()),
+			http.StatusBadRequest,
+		)
+		return
+	}
+	referrer := domain(referrerURL.Host)
 
 	if c, _ := r.Cookie(s.cookieName); c != nil {
 		raw, err := url.QueryUnescape(c.Value)
@@ -109,7 +119,7 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(payload{Decisions: d}); err != nil {
+		if err := json.NewEncoder(w).Encode(payload{Decisions: d[referrer]}); err != nil {
 			http.Error(
 				w,
 				fmt.Sprintf("error encoding response payload: %s", err.Error()),
@@ -126,7 +136,7 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 			)
 			return
 		}
-		d.update(&body.Decisions)
+		d.update(&decisions{referrer: body.Decisions})
 
 		encodedBody, err := d.encode()
 		if err != nil {
@@ -144,7 +154,7 @@ func (s *server) handleConsentRequest(w http.ResponseWriter, r *http.Request) {
 		)
 
 		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(&payload{Decisions: d}); err != nil {
+		if err := json.NewEncoder(w).Encode(&payload{Decisions: d[referrer]}); err != nil {
 			http.Error(
 				w,
 				fmt.Sprintf("error encoding response payload: %s", err.Error()),

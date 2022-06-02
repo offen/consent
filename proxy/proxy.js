@@ -32,7 +32,7 @@ window.addEventListener('message', function handleMessage (evt) {
         return api.get()
           .then(({ decisions: existingDecisions }) => {
             const decisionsToBeTaken = evt.data.payload.scopes.filter((scope) => {
-              return !(scope in existingDecisions)
+              return !existingDecisions || !(scope in existingDecisions)
             })
             return requestDecisions(decisionsToBeTaken, function (styles) {
               evt.ports[0].postMessage(wrapResponse('STYLES')(styles))
