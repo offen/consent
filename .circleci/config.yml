@@ -26,9 +26,43 @@ jobs:
           name: Run tests
           command: npm t
 
+  release:
+    docker:
+      - image: cimg/go:1.18
+    environment:
+      DOCKER_LOGIN: offen
+      DOCKER_BUILDKIT: '1'
+      DOCKER_CLI_EXPERIMENTAL: enabled
+    working_directory: ~/consent
+    steps:
+      - checkout:
+          path: ~/consent
+      - setup_remote_docker:
+          version: 20.10.6
+      - run:
+          name: Build binaries
+          command: make
+      - run:
+          name: Build Docker image
+          command: |
+            docker run --rm --privileged linuxkit/binfmt:v0.8
+            echo "$DOCKER_ACCESSTOKEN" | docker login --username $DOCKER_LOGIN --password-stdin
+            docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t offen/offen:$CIRCLE_TAG . --push
+      - store_artifacts:
+          path: ~/consent/bin
+
 workflows:
   version: 2
   continuous_integration:
     jobs:
       - test_go
       - test_js
+      - release:
+          requires:
+            - test_go
+            - test_js
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$/ # tagged release from any branch
