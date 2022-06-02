@@ -15,12 +15,12 @@ import (
 )
 
 // Option is a function used to configured the server.
-type Option func(*server) error
+type Option func(*handler) error
 
 // WithLogger overrides the server's default logger with the given
 // implementation.
 func WithLogger(l *log.Logger) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.logger = l
 		return nil
 	}
@@ -29,7 +29,7 @@ func WithLogger(l *log.Logger) Option {
 // WithCookieName sets the name of the cookie that is used for storing
 // user's consent decisions
 func WithCookieName(n string) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.cookieName = n
 		return nil
 	}
@@ -37,7 +37,7 @@ func WithCookieName(n string) Option {
 
 // WithCookiePath sets the Path attribute used when setting cookie headers.
 func WithCookiePath(p string) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.cookiePath = p
 		return nil
 	}
@@ -45,7 +45,7 @@ func WithCookiePath(p string) Option {
 
 // WithCookieDomain sets the Domain attribute used when setting cookie headers.
 func WithCookieDomain(d string) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.cookieDomain = d
 		return nil
 	}
@@ -53,7 +53,7 @@ func WithCookieDomain(d string) Option {
 
 // WithCookieTTL defines the expected lifetime of a cookie.
 func WithCookieTTL(d time.Duration) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.cookieTTL = d
 		return nil
 	}
@@ -61,7 +61,7 @@ func WithCookieTTL(d time.Duration) Option {
 
 // WithCookieSecure defines whether used cookies are using the Secure attribute
 func WithCookieSecure(a bool) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.cookieSecure = a
 		return nil
 	}
@@ -69,7 +69,7 @@ func WithCookieSecure(a bool) Option {
 
 // WithCustomizedWording passes custom copy to be used in the default consent UI
 func WithCustomizedWording(copy, yes, no string) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		s.templateData.Wording.Paragraph = copy
 		s.templateData.Wording.Yes = yes
 		s.templateData.Wording.No = no
@@ -79,7 +79,7 @@ func WithCustomizedWording(copy, yes, no string) Option {
 
 // WithStylesheet adds a stylesheet that is injected into the iframe element.
 func WithStylesheet(loc string) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		if loc == "" {
 			return nil
 		}
@@ -96,7 +96,7 @@ func WithStylesheet(loc string) Option {
 // WithTemplatesDirectory configures the server to look for custom templates
 // in the given location.
 func WithTemplatesDirectory(dir string) Option {
-	return func(s *server) error {
+	return func(s *handler) error {
 		if dir == "" {
 			return nil
 		}
