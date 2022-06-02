@@ -19,20 +19,16 @@
       [data-scope="default"] * {
         box-sizing: border-box;
       }
-    </style>
-    <style>
       .consent-scope {
         display: none;
       }
       .consent-scope.show {
         display: initial;
       }
-    </style>
-    {{ with .Styles }}
-      <style type="text/css">
+      {{ with .Styles }}
         {{ . }}
-      </style>
-    {{ end }}
+      {{ end }}
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   </head>
   <body>
