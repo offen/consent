@@ -5,6 +5,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -40,6 +41,9 @@ func main() {
 	)
 
 	if err := ff.Parse(fs, os.Args[1:], ff.WithEnvVarNoPrefix(), ff.WithConfigFileFlag("config"), ff.WithConfigFileParser(ffyaml.Parser)); err != nil {
+		if errors.Is(err, flag.ErrHelp) {
+			os.Exit(0)
+		}
 		logger.Fatalf("cmd: error parsing configuration: %s", err.Error())
 		os.Exit(1)
 	}
