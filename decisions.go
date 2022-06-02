@@ -8,11 +8,20 @@ import (
 	"fmt"
 )
 
-type decisions map[string]interface{}
+type domain string
+
+type scope string
+
+type decisions map[domain]map[scope]interface{}
 
 func (d *decisions) update(u *decisions) {
-	for key, value := range *u {
-		(*d)[key] = value
+	for domain, decisions := range *u {
+		for s, decision := range decisions {
+			if (*d)[domain] == nil {
+				(*d)[domain] = map[scope]interface{}{}
+			}
+			(*d)[domain][s] = decision
+		}
 	}
 }
 
