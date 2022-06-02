@@ -10,7 +10,7 @@
     <h1>Test page</h1>
     <script src="http://localhost:9000/client.js"></script>
     <script>
-      const client = new window.ConsentClient({ url: 'http://localhost:9000' })
+      const client = new window.ConsentClient({ url: 'http://localhost:9000', ui: {} })
       client
         .acquire('other', 'test')
         .then((r) => console.log(r))

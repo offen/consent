@@ -5,7 +5,7 @@
 
 class Client {
   constructor (options = {}) {
-    this.proxy = new EmbeddedProxy(options.url)
+    this.proxy = new EmbeddedProxy(options.url, options.ui)
   }
 
   acquire (...scopes) {
@@ -22,12 +22,19 @@ class Client {
 }
 
 class EmbeddedProxy {
-  constructor (url) {
-    this._send = this.injectIframe(url)
+  constructor (url, options) {
+    this._send = this.injectIframe(url, options)
     this.targetOrigin = new window.URL(url).origin
   }
 
-  injectIframe (url) {
+  injectIframe (
+    url,
+    options = {}
+  ) {
+    options = Object.assign({
+      className: 'consent',
+      styles: { margin: 'auto', position: 'absolute', bottom: '1em', left: '0', right: '0' }
+    }, options)
     const proxy = document.createElement('iframe')
     proxy.src = url + '/proxy'
 
@@ -38,6 +45,10 @@ class EmbeddedProxy {
 
     const elementId = 'consent-proxy-' + Math.random().toString(36).slice(2)
     proxy.setAttribute('id', elementId)
+    proxy.classList.add(options.className)
+    for (const prop in options.styles) {
+      proxy.style[prop] = options.styles[prop]
+    }
 
     const iframe = new Promise(function (resolve, reject) {
       proxy.addEventListener('load', function (e) {
