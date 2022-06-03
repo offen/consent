@@ -116,6 +116,14 @@ The file system location to use for caching SSL certificates.
 Defaults to `/var/www/.cache`.
 When using this, make sure the location is readable and writable for the user owning the service process.
 
+#### `-ttl` (`TTL`)
+
+The duration for which a cookie is valid after it has been issued.
+Defaults to `4464h`.
+When using this, pass a string that can be parsed by Golang's [`time.ParseDuration`][duration].
+
+[duration]: https://pkg.go.dev/time#ParseDuration
+
 #### `-ui-copy` (`UI_COPY`)
 
 In case you are using the `default` scope provided by the application, this option sets the copy used in the consent UI's description paragraph.

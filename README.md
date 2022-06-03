@@ -13,6 +13,7 @@ __Zero-overhead consent tooling__
 `consent` aims to be a lightweight solution for managing user consent on websites.
 Its most important design goals are:
 - no server side persistence of consent decisions
+- no need to assign user identifiers or similar, meaning no additional tracking vectors
 - consent decisions are secured from interference of 3rd party scripts
 - users can revoke their consent decisions and any traces at any time by clearing their cookies or using the provided UI
 - operators can customize the UI elements in use to match their design

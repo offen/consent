@@ -30,6 +30,8 @@ func main() {
 		domain = fs.String("domain", "", "The domain used to serve the application via SSL (also via DOMAIN)")
 		certs  = fs.String("certs", "/var/www/.cache", "The directory to use for caching SSL certificates (also via CERTS)")
 
+		ttl = fs.Duration("ttl", time.Hour*24*31*6, "The duration for which a cookie is valid after it has been issued (also via TTL)")
+
 		copy      = fs.String("ui-copy", "", "The copy used for the default consent banner (also via UI_COPY)")
 		buttonYes = fs.String("ui-button-yes", "", "The yes button used for the default consent banner (also via UI_BUTTON_YES)")
 		buttonNo  = fs.String("ui-button-no", "", "The No button used for the default consent banner (also via UI_BUTTON_NO)")
@@ -53,6 +55,7 @@ func main() {
 		consent.WithCustomizedWording(*copy, *buttonYes, *buttonNo),
 		consent.WithTemplatesDirectory(*templatesDirectory),
 		consent.WithStylesheet(*stylesheet),
+		consent.WithCookieTTL(*ttl),
 	)
 	if err != nil {
 		logger.Fatalf("cmd: error creating handler: %s", err.Error())
