@@ -38,6 +38,32 @@ Documentation on how to install and run the consent tool is found in the [docs][
 
 [docs]: ./docs/README.md
 
+## Quickstart
+
+Deploy the application to a domain like `consent.example.com`.
+On the host site `www.example.com`, embed the client script:
+
+```html
+<script src="https://consent.example.com/client.js">
+```
+
+which exposed `window.ConsentClient`.
+In your client side code, construct a new client instance pointing at your deployment and request user consent for the desired scope(s):
+
+```js
+const client = new window.ConsentClient({ url: 'https://consent.example.com' })
+client
+  .acquire('analytics', 'marketing')
+  .then((decisions) => {
+    if (decisions.analytics) {
+      // load analytics data
+    }
+    if (decisions.marketing) {
+      // trigger marketing tools
+    }
+  })
+```
+
 ## Building the binary/images yourself
 
 By default, a `linux-x86_64` binary is provided for all releases.
