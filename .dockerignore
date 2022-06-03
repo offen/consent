@@ -4,4 +4,6 @@ bin
 node_modules
 package.json
 package-lock.json
-docs
+MANUAL.md
+README.md
+LICENSE

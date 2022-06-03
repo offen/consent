@@ -6,7 +6,7 @@
 
 [![CircleCI](https://circleci.com/gh/offen/consent/tree/development.svg?style=svg)](https://circleci.com/gh/offen/consent/tree/development)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Docs](https://img.shields.io/badge/Documentation-docs-blue.svg)][docs]
+[![Docs](https://img.shields.io/badge/Documentation-MANUAL.md-blue.svg)][docs]
 
 __Zero-overhead consent tooling__
 
@@ -37,7 +37,7 @@ If needed, it can automatically acquire SSL certificates.
 
 Documentation on how to install and run the consent tool is found in the [docs][docs] section.
 
-[docs]: ./docs/README.md
+[docs]: ./MANUAL.md
 
 ## Quickstart
 
