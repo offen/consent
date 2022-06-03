@@ -51,7 +51,15 @@ window.addEventListener('message', function handleMessage (evt) {
         return Promise.reject(new Error(`Unsupported message type "${evt.data.type}"`))
     }
   })()
-    .catch(wrapResponse('ERROR'))
+    .catch((err) => {
+      return {
+        type: 'ERROR',
+        payload: {
+          message: err.message,
+          stack: err.stack
+        }
+      }
+    })
     .then((response) => {
       if (evt.ports && evt.ports.length > 0) {
         evt.ports[0].postMessage(response)
@@ -114,7 +122,10 @@ function requestDecisions (scopes, relayStyles) {
       return new Promise((resolve, reject) => {
         showElement(element)
         relayStyles({ visible: true })
-        setTimeout(() => relayStyles({ rect: element.getBoundingClientRect() }), 0)
+        setTimeout(() => {
+          const { width, height } = element.getBoundingClientRect()
+          relayStyles({ rect: { width, height } })
+        }, 7)
         if (!yes || !no) {
           reject(new Error('Could not bind event listeners.'))
           return
@@ -141,7 +152,7 @@ function requestDecisions (scopes, relayStyles) {
           decisions[scope] = decision
           return decisions
         })
-        .then(deferBy(0))
+        .then(deferBy(7))
     })
   }, Promise.resolve({}))
 }

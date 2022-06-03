@@ -1,3 +1,4 @@
+<!doctype html>
 <html>
   <head>
     <style>
@@ -23,7 +24,7 @@
         ui: { styles: null }
       })
       client
-        .acquire('default', 'other', 'test')
+        .acquire('default')
         .then((r) => console.log(r))
         .catch((err) => console.error(err))
     </script>

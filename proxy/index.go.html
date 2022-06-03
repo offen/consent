@@ -32,32 +32,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
   </head>
   <body>
-    <div class="consent-scope" data-scope="default" style="max-width: 30em; background-color: #f5f5f5; padding: 1em; margin: 0 auto;">
-      <p style="font-size: 1em; margin-block-start: 0; margin-block-end: 1em;">
-      {{ with .Wording.Paragraph }}
-        {{ . }}
-      {{ else }}
-        Use this text to explain what consent is requested for.
-      {{ end }}
-      </p>
-      <div style="display: flex; flex-wrap: wrap; justify-content: center;">
-        <div style="margin: 0 0.2em 0.4em;">
-          <button data-yes style="cursor: pointer; font-size: 1em; color: #fff; background-color: #333; border-width: 0; padding: 0.4em 0.8em;">
-            {{ with .Wording.Yes }}
-              {{ . }}
-            {{ else }}
-              User gives consent.
-            {{ end }}
-          </button>
-        </div>
-        <div style="margin: 0 0.2em;">
-          <button data-no style="cursor: pointer; font-size: 1em; color: #fff; background-color: #333; border-width: 0; padding: 0.4em 0.8em;">
-            {{ with .Wording.No }}
-              {{ . }}
-            {{ else }}
-              User denies consent.
-            {{ end }}
-          </button>
+    <div class="consent-scope" data-scope="default">
+      <div style="max-width: 30em; background-color: #f5f5f5; padding: 1em; margin: 0 auto;">
+        <p style="font-size: 1em; margin-block-start: 0; margin-block-end: 1em;">
+        {{ with .Wording.Paragraph }}
+          {{ . }}
+        {{ else }}
+          Use this text to explain what consent is requested for.
+        {{ end }}
+        </p>
+        <div style="display: flex; flex-wrap: wrap; justify-content: center;">
+          <div style="margin: 0 0.2em 0.4em;">
+            <button data-yes style="cursor: pointer; font-size: 1em; color: #fff; background-color: #333; border-width: 0; padding: 0.4em 0.8em;">
+              {{ with .Wording.Yes }}
+                {{ . }}
+              {{ else }}
+                User gives consent.
+              {{ end }}
+            </button>
+          </div>
+          <div style="margin: 0 0.2em;">
+            <button data-no style="cursor: pointer; font-size: 1em; color: #fff; background-color: #333; border-width: 0; padding: 0.4em 0.8em;">
+              {{ with .Wording.No }}
+                {{ . }}
+              {{ else }}
+                User denies consent.
+              {{ end }}
+            </button>
+          </div>
         </div>
       </div>
     </div>
