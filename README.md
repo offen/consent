@@ -4,27 +4,39 @@
 
 # consent
 
-__Zero-overhead Consent tooling__
+[![CircleCI](https://circleci.com/gh/offen/consent/tree/development.svg?style=svg)](https://circleci.com/gh/offen/consent/tree/development)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Docs](https://img.shields.io/badge/Documentation-docs-blue.svg)][docs]
+
+__Zero-overhead consent tooling__
+
+`consent` aims to be a lightweight solution for managing user consent on websites.
+Its most important design goals are:
+- no server side persistence of consent decisions
+- consent decisions are secured from interference of 3rd party scripts
+- users can revoke their consent decisions and any traces at any time by clearing their cookies or using the provided UI
+- operators can customize the UI elements in use to match their design
+
+`consent` is a good option in case you want to:
+- load 3rd party content like Twitter or Instagram widgets with user consent
+- request users' consent for collecting usage statistics
+- keep your data footprint as low as possible by never storing any data about consent decisions yourselves
+
+`consent` does not aim to be a drop-in "handle-GDPR-requirements-for-me" solution.
+Operators that deploy `consent` are expected to follow regulations that apply themselves.
+Ideally, it also acts as a motivation for thinking about what data you really need to collect and which third party services are really required to run your site.
+
+`consent` requires you to be able to configure deploy a simple web server to a dedicated domain.
+Linux binaries and a Docker image are provided, or you can build the server for any other platform.
+If needed, it can automatically acquire SSL certificates.
+
+`consent` can also be used as a library and be integrated into any web server written in Golang.
 
 ---
 
 Documentation on how to install and run the consent tool is found in the [docs][docs] section.
 
 [docs]: ./docs/README.md
-
-## Development setup
-
-To run the development setup, make sure you have `make`, Docker and `docker-compose` installed.
-
-Clone the repository and start the development server:
-
-```
-git clone git@github.com:offen/consent.git
-cd consent
-make up
-```
-
-This gives you a `consent` server running on port 9000 and a test environment that embeds the script running on port 9001.
 
 ## Building the binary/images yourself
 
@@ -44,3 +56,17 @@ Docker images are provided for `amd64`, `arm64` and `arm/v7`, building for other
 ```
 docker buildx build --platform <your_target> -t offen/offen:<your_tag> .
 ```
+
+## Development setup
+
+To run the development setup, make sure you have `make`, Docker and `docker-compose` installed.
+
+Clone the repository and start the development server:
+
+```
+git clone git@github.com:offen/consent.git
+cd consent
+make up
+```
+
+This gives you a `consent` server running on port 9000 and a test environment that embeds the script running on port 9001.
