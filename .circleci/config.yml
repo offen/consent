@@ -58,8 +58,13 @@ workflows:
   version: 2
   continuous_integration:
     jobs:
-      - test_go
-      - test_js
+      - test_go: &default_filters
+          filters:
+            tags:
+              only: /.*/
+            branches:
+              only: /.*/
+      - test_js: *default_filters
       - release:
           requires:
             - test_go
