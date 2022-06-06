@@ -47,8 +47,11 @@ jobs:
       - run:
           name: Build Docker image
           command: |
-            docker run --rm --privileged linuxkit/binfmt:v0.8
             echo "$DOCKER_ACCESSTOKEN" | docker login --username $DOCKER_LOGIN --password-stdin
+            docker run --rm --privileged linuxkit/binfmt:v0.8
+            docker context create consent
+            docker buildx create consent --name consent --use
+            docker buildx inspect --bootstrap
             docker buildx build \
               --platform linux/amd64,linux/arm64,linux/arm/v7 \
               -t offen/consent:latest -t offen/consent:$CIRCLE_TAG \
