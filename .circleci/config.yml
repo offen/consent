@@ -47,7 +47,10 @@ jobs:
           command: |
             docker run --rm --privileged linuxkit/binfmt:v0.8
             echo "$DOCKER_ACCESSTOKEN" | docker login --username $DOCKER_LOGIN --password-stdin
-            docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 -t offen/offen:$CIRCLE_TAG . --push
+            docker buildx build \
+              --platform linux/amd64,linux/arm64,linux/arm/v7 \
+              -t offen/consent:latest -t offen/consent:$CIRCLE_TAG \
+              . --push
       - store_artifacts:
           path: ~/consent/bin
 
@@ -62,7 +65,7 @@ workflows:
             - test_go
             - test_js
           filters:
-            branches:
-              ignore: /.*/
             tags:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$/ # tagged release from any branch
+            branches:
+              ignore: /.*/
