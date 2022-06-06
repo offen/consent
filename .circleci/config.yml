@@ -39,6 +39,8 @@ jobs:
           path: ~/consent
       - setup_remote_docker:
           version: 20.10.6
+      - docker/install-docker-credential-helper
+      - docker/configure-docker-credentials-store
       - run:
           name: Build binaries
           command: make
@@ -74,3 +76,6 @@ workflows:
               only: /^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$/ # tagged release from any branch
             branches:
               ignore: /.*/
+
+orbs:
+  docker: circleci/docker@1.0.1
