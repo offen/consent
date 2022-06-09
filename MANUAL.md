@@ -39,7 +39,6 @@
 
 <!-- /MarkdownTOC -->
 
-
 ## Concepts and requirements
 
 ### Designed for client side usage
@@ -59,7 +58,7 @@ In case you cannot provide a certificate yourself, the server can acquire a free
 ### Scopes, decisions and consent domains
 
 In the context of `consent`, a __decision__ is the answer to a consent request.
-Such a decision can only ever be __yes__(`true`) or __no__(`false`).
+Such a decision can only ever be __yes__ (`true`) or __no__ (`false`).
 Each decision belongs to a __scope__, which is a simple string identifier, e.g. `twitter`, `marketing`, `analytics` or anything else that you might want to request user consent for.
 Additionally, consent decisions are bound to the referring domain, i.e. a consent decision that has been taken on `www.example.com` is not valid for `app.example.com`.
 Each domain needs to request consent again, preventing accidental or inadvertent user consent on such domains.
@@ -208,11 +207,25 @@ Default values are:
 
 ### Client usage
 
+A client instance exposes three methods.
+All methods receive an arbitrary number of decision `scopes`.
+In case no arguments are given, the call assumes the operation is applicable to all scopes.
+All methods return a Promise resolving with an object containg the user's consent decisions.
+
 #### `client.acquire(...scopes)`
+
+Call `acquire` in case you want to acquire consent for a certain scope.
+In case the user already has previously made a decision for a scope, its known state is returned.
+In case the decision is still pending, the consent UI will be shown and the returned Promise resolves once a decision has been taken.
 
 #### `client.query(...scopes)`
 
+Call `query` to query for the existing decision on a certain scope.
+
 #### `client.revoke(...scopes)`
+
+Call `revoke` to revoke the existing decision on a certain scope.
+This resets the consent decisions to a state matching the one of a new user.
 
 ## Customizing the consent UI
 
