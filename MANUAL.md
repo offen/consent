@@ -99,7 +99,7 @@ docker run --rm -p 80:80 -p 443:443 offen/consent:latest
 
 ### Configuration
 
-Configuring the `consent` server can happen in three different means, using the following precendence:
+Configuring the `consent` server can happen in three different means, using the following precedence:
 1. command line flags
 1. environment variables
 1. a configuration file in YAML format, specified by passing `-config`
@@ -221,7 +221,7 @@ This defaults to `consent-iframe`.
 A client instance exposes three methods.
 All methods receive an arbitrary number of decision `scopes`.
 In case no arguments are given, the call assumes the operation is applicable to all scopes.
-All methods return a Promise resolving with an object containg the user's consent decisions.
+All methods return a Promise resolving with an object containing the user's consent decisions.
 
 #### `client.acquire(...scopes)`
 
