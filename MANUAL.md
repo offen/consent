@@ -192,17 +192,28 @@ Defaults to `document.body`.
 
 #### `options.ui`
 
-`ui` is an object defining `style` properties that define how the consent UI is styled and positioned.
+`ui` is an object defining:
+
+`style` properties that define how the consent UI is styled and positioned.
 Any valid style property can be used.
 Default values are:
 ```js
 {
-  margin: 'auto',
-  position: 'fixed',
-  bottom: '1em',
-  left: '0',
-  right: '0'
+  style: {
+    margin: 'auto',
+    position: 'fixed',
+    bottom: '1em',
+    left: '0',
+    right: '0'
+  }
 }
+```
+
+A `className` value, defining a class name that is applied to the `iframe` element containing the consent UI.
+This defaults to `consent-iframe`.
+
+```js
+{ className: 'consent-iframe' }
 ```
 
 ### Client usage
@@ -229,11 +240,48 @@ This resets the consent decisions to a state matching the one of a new user.
 
 ## Customizing the consent UI
 
+`consent` isolates the consent UI into an `iframe` element in order to shield it from unwanted access by third party scripts running in the context of your website. UI can be customized in two different ways:
+- provide the text content to be used in the default UI
+- provide custom HTML and CSS content to be used for rendering the consent UI
+
 ### Customizing the default UI
+
+If you do not need custom styling, you can use the default banner provided.
+Either by setting env vars or by providing values to the CLI flags, set the following:
+- `UI_COPY` contains the text used to explain what consent is acquired for
+- `UI_BUTTON_YES` contains the text displayed on the button for giving consent
+- `UI_BUTTON_NO` contains the text displayed on the button for declining consent
 
 ### Providing custom content for scopes
 
+`consent` also allows you to provide entirely custom content for your UI.
+To provide custom content, provide a directory containing one `.html` file for each scope you want to define using `TEMPLATES_DIRECTORY`.
+Such a file is expected to contain an HTML snippet that is then wrapped in a `.consent-scope` element.
+Each of these snippets are expected to contain __exactly one__ clicakble element for giving consent and __exactly one__ clickable element that can be used for declining.
+These elements __must__ be marked up using `data-yes` and `data-no` attributes.
+
+An example scope would look like:
+
+```
+<p>Do you allow collection of anonymous usage data while visiting this site?</p>
+<button data-yes>Yes</button>
+<button data-no>No</button>
+```
+
+A custom stylesheet for styling these scopes can be provided using the `STYLESHEET` option.
+
+In case the client requests a decision for a scope that has not been defined by you, the `default` scope will be used.
+You can override the predefined `default` scope by providing a `default.html` file in the `TEMPLATES_DIRECTORY`.
+
 ### Positioning the consent UI
+
+Positioning the `iframe` containing the consent UI on the host page is done using the client script.
+You can:
+1. pass an arbitrary DOM element as `options.host` that acts as the `iframe`'s parent element
+2. pass an object containing style attributes that will be applied to the `iframe` element using `options.ui.styles`
+
+In case this does not meet your requirements, you can also position and style the `iframe` element in your own code.
+To do so, pass `null` to `options.ui.styles` and target the `iframe` element using the `.consent-iframe` (or whatever you define yourself in `options.ui.className`) selector.
 
 ## Usage as a library
 

@@ -43,7 +43,7 @@ class EmbeddedProxy {
     uiOptions = {}
   ) {
     uiOptions = Object.assign({
-      className: 'consent',
+      className: 'consent-proxy',
       styles: { margin: 'auto', position: 'fixed', bottom: '1em', left: '0', right: '0' }
     }, uiOptions)
     const proxy = document.createElement('iframe')
