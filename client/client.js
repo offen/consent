@@ -3,9 +3,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+const defaultOrigin = (() => {
+  const src = document.currentScript && document.currentScript.src
+  if (!src) {
+    return null
+  }
+  return new window.URL(src).origin
+})()
+
 class Client {
   constructor (options = {}) {
-    this.proxy = new EmbeddedProxy(options.url, options.host, options.ui)
+    options = Object.assign({
+      origin: defaultOrigin
+    }, options)
+    this.proxy = new EmbeddedProxy(options.origin, options.host, options.ui)
   }
 
   acquire (...scopes) {
@@ -22,20 +33,19 @@ class Client {
 }
 
 class EmbeddedProxy {
-  constructor (url, host, ui) {
-    this._send = this.injectIframe(url, host, ui)
-    this.targetOrigin = new window.URL(url).origin
+  constructor (origin, host, ui) {
+    this._send = this.injectIframe(origin, host, ui)
   }
 
   injectIframe (
     url,
     host = document.body,
-    options = {}
+    uiOptions = {}
   ) {
-    options = Object.assign({
+    uiOptions = Object.assign({
       className: 'consent',
       styles: { margin: 'auto', position: 'fixed', bottom: '1em', left: '0', right: '0' }
-    }, options)
+    }, uiOptions)
     const proxy = document.createElement('iframe')
     proxy.src = url + '/proxy'
 
@@ -46,9 +56,9 @@ class EmbeddedProxy {
 
     const elementId = 'consent-proxy-' + Math.random().toString(36).slice(2)
     proxy.setAttribute('id', elementId)
-    proxy.classList.add(options.className)
-    for (const prop in options.styles) {
-      proxy.style[prop] = options.styles[prop]
+    proxy.classList.add(uiOptions.className)
+    for (const prop in uiOptions.styles) {
+      proxy.style[prop] = uiOptions.styles[prop]
     }
 
     const iframe = new Promise(function (resolve, reject) {
@@ -116,6 +126,13 @@ class EmbeddedProxy {
       return send({ type, payload: { scopes } })
     })
   }
+}
+
+const prevGlobal = window.ConsentClient
+
+Client.noConflict = () => {
+  window.ConsentClient = prevGlobal
+  return Client
 }
 
 window.ConsentClient = Client

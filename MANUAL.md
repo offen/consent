@@ -17,13 +17,20 @@
     - [`-port` \(`PORT`\)](#-port-port)
     - [`-domain` \(`DOMAIN`\)](#-domain-domain)
     - [`-certs` \(`CERTS`\)](#-certs-certs)
+    - [`-ttl` \(`TTL`\)](#-ttl-ttl)
     - [`-ui-copy` \(`UI_COPY`\)](#-ui-copy-ui_copy)
     - [`-ui-button-yes` \(`UI_BUTTON_YES`\)](#-ui-button-yes-ui_button_yes)
     - [`-ui-button-no` \(`UI_BUTTON_NO`\)](#-ui-button-no-ui_button_no)
     - [`-templates-directory` \(`TEMPLATES_DIRECTORY`\)](#-templates-directory-templates_directory)
     - [`-stylesheet` \(`STYLESHEET`\)](#-stylesheet-stylesheet)
 - [Embedding the script](#embedding-the-script)
+    - [`options.origin`](#optionsorigin)
+    - [`options.host`](#optionshost)
+    - [`options.ui`](#optionsui)
   - [Client usage](#client-usage)
+    - [`client.acquire(...scopes)`](#clientacquirescopes)
+    - [`client.query(...scopes)`](#clientqueryscopes)
+    - [`client.revoke(...scopes)`](#clientrevokescopes)
 - [Customizing the consent UI](#customizing-the-consent-ui)
   - [Customizing the default UI](#customizing-the-default-ui)
   - [Providing custom content for scopes](#providing-custom-content-for-scopes)
@@ -153,7 +160,59 @@ You can use this option to apply styling to the scope elements in `templates-dir
 
 ## Embedding the script
 
+The application serves a script file at `/client.js` that needs to be embedded on any site you want to use the tool on.
+
+```html
+<script src="https://consent.example.com/client.js"></script>
+```
+
+This script provides a global `ConsentClient` class you can instantiate in your code:
+
+```js
+const client = new window.ConsentClient(/* options */)
+````
+
+In case the `ConsentClient` identifier was already defined, you can restore its old value using the `noConflict` method:
+
+```js
+const NoConflictConsentClient = window.ConsentClient.noConflict()
+const client = new NoConflictConsentClient(/* options */)
+```
+
+The constructor receives an optional options object with the following properties:
+
+#### `options.origin`
+
+The origin (e.g. `https://consent.example.com`) of the target server.
+If no value is given, the origin of the script is used.
+
+#### `options.host`
+
+A DOM element that will be used as the parent element of the consent UI.
+Defaults to `document.body`.
+
+#### `options.ui`
+
+`ui` is an object defining `style` properties that define how the consent UI is styled and positioned.
+Any valid style property can be used.
+Default values are:
+```js
+{
+  margin: 'auto',
+  position: 'fixed',
+  bottom: '1em',
+  left: '0',
+  right: '0'
+}
+```
+
 ### Client usage
+
+#### `client.acquire(...scopes)`
+
+#### `client.query(...scopes)`
+
+#### `client.revoke(...scopes)`
 
 ## Customizing the consent UI
 

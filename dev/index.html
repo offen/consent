@@ -18,8 +18,9 @@
     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Maiores amet ipsum asperiores harum. Asperiores ipsam nulla alias illo error officiis animi quam deleniti veniam, beatae adipisci aut, accusantium veritatis quasi. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Cum, fuga, repudiandae? Iure optio nesciunt aut exercitationem voluptates impedit atque voluptas incidunt. Nobis laboriosam nemo odio, fuga, sit enim eligendi aut. Lorem ipsum dolor, sit amet consectetur, adipisicing elit. Ex praesentium doloremque soluta, asperiores. Ducimus fuga ab, fugit veritatis molestiae sunt nesciunt, eum laboriosam magnam esse, optio cumque a neque ipsa. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Corrupti blanditiis, dicta temporibus fugit obcaecati nostrum corporis porro, aliquam animi eveniet magni ipsum ea distinctio modi. Magni enim facilis, numquam cum. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Dicta harum libero quisquam placeat inventore unde obcaecati sit provident hic saepe qui veniam ab voluptatem fugiat, in, distinctio eaque laborum ducimus? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Iure repudiandae quos rem possimus totam? Recusandae pariatur consequuntur beatae corrupti sed harum, consectetur accusantium, magni molestias ipsum quae suscipit facere unde! Lorem ipsum dolor sit amet consectetur adipisicing elit. Tenetur at voluptate suscipit sunt eaque, ratione dicta natus eum, nesciunt est. Repellendus molestias est fugiat necessitatibus blanditiis nam consequatur sit explicabo.</p>
     <script src="http://localhost:9000/client.js"></script>
     <script>
-      const client = new window.ConsentClient({
-        url: 'http://localhost:9000',
+      const NoConflictConsentClient = window.ConsentClient.noConflict()
+      const client = new NoConflictConsentClient({
+        origin: 'http://localhost:9000',
         host: document.getElementById('host'),
         ui: { styles: null }
       })
