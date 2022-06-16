@@ -112,10 +112,16 @@ class EmbeddedProxy {
       case 'complete':
       case 'loaded':
       case 'interactive':
+        if (!document.body.isSameNode(host)) {
+          host.innerHTML = ''
+        }
         host.appendChild(proxy)
         break
       default:
         document.addEventListener('DOMContentLoaded', function () {
+          if (!document.body.isSameNode(host)) {
+            host.innerHTML = ''
+          }
           host.appendChild(proxy)
         })
     }
