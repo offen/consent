@@ -202,6 +202,7 @@ Default values are:
   style: {
     margin: 'auto',
     position: 'fixed',
+    'max-width': '479px',
     bottom: '1em',
     left: '0',
     right: '0'

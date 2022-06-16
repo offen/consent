@@ -44,7 +44,7 @@ class EmbeddedProxy {
   ) {
     uiOptions = Object.assign({
       className: 'consent-proxy',
-      styles: { margin: 'auto', position: 'fixed', bottom: '1em', left: '0', right: '0' }
+      styles: { margin: 'auto', position: 'fixed', 'max-width': '479px', bottom: '1em', left: '0', right: '0' }
     }, uiOptions)
     const proxy = document.createElement('iframe')
     proxy.src = url + '/proxy'
@@ -53,6 +53,7 @@ class EmbeddedProxy {
     proxy.setAttribute('frameBorder', '0')
     proxy.setAttribute('scrolling', 'no')
     proxy.setAttribute('title', 'Consent Proxy')
+    proxy.setAttribute('width', '100%')
 
     const elementId = 'consent-proxy-' + Math.random().toString(36).slice(2)
     proxy.setAttribute('id', elementId)
