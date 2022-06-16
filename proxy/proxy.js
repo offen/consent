@@ -122,10 +122,13 @@ function requestDecisions (scopes, relayStyles) {
       return new Promise((resolve, reject) => {
         showElement(element)
         relayStyles({ visible: true })
-        setTimeout(() => {
+        const pollForSize = window.setInterval(() => {
           const { width, height } = element.getBoundingClientRect()
-          relayStyles({ rect: { width, height } })
-        }, 7)
+          if (width && height) {
+            relayStyles({ rect: { width, height } })
+            window.clearInterval(pollForSize)
+          }
+        }, 3)
         if (!yes || !no) {
           reject(new Error('Could not bind event listeners.'))
           return
