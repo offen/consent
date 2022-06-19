@@ -188,6 +188,8 @@ If no value is given, the origin of the script is used.
 #### `options.host`
 
 A DOM element that will be used as the parent element of the consent UI.
+Child elements of the host will be removed when the iframe is injected.
+This can be used to add fallback content for users that have JavaScript disabled or similar.
 Defaults to `document.body`.
 
 #### `options.ui`
