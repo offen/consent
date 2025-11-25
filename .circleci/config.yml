@@ -3,7 +3,7 @@ version: 2.1
 jobs:
   test_go:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.24
     working_directory: ~/consent
     steps:
       - checkout:
@@ -28,7 +28,7 @@ jobs:
 
   release:
     docker:
-      - image: cimg/go:1.18
+      - image: cimg/go:1.24
     environment:
       DOCKER_LOGIN: offen
       DOCKER_BUILDKIT: '1'
